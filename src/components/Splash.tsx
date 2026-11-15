@@ -24,7 +24,7 @@ export function Splash() {
       <div className="splash-center">
         <img className="splash-icon" src="./icons/icon.svg" alt="" width="112" height="112" />
         <div className="splash-name">Lugha Zetu</div>
-        <div className="splash-tag">Our languages · Lugha zetu</div>
+        <div className="splash-tag">Learn Kenya's languages</div>
         <div className="splash-stripe kikoi" />
       </div>
       <div className="splash-twiga"><Mascot mood="wave" size={92} /></div>
