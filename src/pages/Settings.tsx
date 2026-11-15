@@ -98,7 +98,11 @@ export default function Settings() {
       <div className="card center" style={{ marginTop: '1rem' }}>
         <img src="./icons/icon.svg" alt="" width="56" height="56" />
         <h3 style={{ margin: '.4rem 0 .1rem' }}>Lugha Zetu</h3>
-        <div className="small muted">Version {__APP_VERSION__} · made in Kenya by <b>Pizza Technologies</b></div>
+        <div className="small muted">Version {__APP_VERSION__}</div>
+        <div className="row" style={{ justifyContent: 'center', marginTop: '.8rem' }}>
+          <img className="pt-logo" src="./brand/pizza-technologies.jpg" alt="Pizza Technologies logo" width="56" height="56" />
+          <div style={{ textAlign: 'left' }}><div className="small muted">Made in Kenya by</div><b>Pizza Technologies</b></div>
+        </div>
         <p className="small muted" style={{ margin: '.6rem 0 0' }}>Free & open · <Link to="/community">Help build it</Link></p>
       </div>
       <Modal open={confirmReset} onClose={() => setConfirmReset(false)} label="Reset progress">

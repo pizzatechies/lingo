@@ -123,11 +123,11 @@ extension Color {
 }
 
 extension View {
-    @ViewBuilder func widgetBackground(_ color: Color) -> some View {
+    @ViewBuilder func widgetBackground<S: ShapeStyle>(_ style: S) -> some View {
         if #available(iOSApplicationExtension 17.0, *) {
-            containerBackground(color, for: .widget)
+            containerBackground(style, for: .widget)
         } else {
-            background(color)
+            background(style)
         }
     }
 }

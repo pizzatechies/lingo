@@ -252,3 +252,7 @@ body::before { content: ''; position: fixed; inset: 0 0 auto; height: var(--sat)
 @keyframes splash-draw { to { width: 170px; } }
 @keyframes splash-peek { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .splash-stripe { width: 170px; } }
+
+/* Pizza Technologies logo (gold on charcoal) */
+.pt-logo { border-radius: 22%; flex: none; box-shadow: 0 2px 8px rgb(0 0 0 / .18); }
+.splash-credit { display: flex; align-items: center; gap: .5rem; }

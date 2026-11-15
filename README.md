@@ -138,6 +138,8 @@ server/           Express + node:sqlite API    tests/         unit, content, API
 
 ---
 
+<img src="public/brand/pizza-technologies.jpg" width="72" alt="Pizza Technologies logo">
+
 © Pizza Technologies. Lugha Zetu is built and maintained by Pizza Technologies.
 
 ## iPhone app (IPA)

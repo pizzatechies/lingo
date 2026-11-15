@@ -28,7 +28,7 @@ export function Splash() {
         <div className="splash-stripe kikoi" />
       </div>
       <div className="splash-twiga"><Mascot mood="wave" size={92} /></div>
-      <div className="splash-credit">by <b>Pizza Technologies</b></div>
+      <div className="splash-credit"><img className="pt-logo" src="./brand/pizza-technologies.jpg" alt="Pizza Technologies logo" width="30" height="30" /><span>by <b>Pizza Technologies</b></span></div>
     </div>
   );
 }
