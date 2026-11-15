@@ -5,7 +5,9 @@ import { useAudioAvailable, useCourse } from './hooks';
 import Onboarding from './pages/Onboarding';
 import Learn from './pages/Learn';
 import { SidePanel } from './pages/SidePanel';
+import { Splash } from './components/Splash';
 import { checkServer, refreshCommunity, sync } from './lib/api';
+import { useWidgetSync } from './lib/widget';
 
 const Session = lazy(() => import('./pages/Session'));
 const Practice = lazy(() => import('./pages/Practice'));
@@ -45,6 +47,7 @@ function Shell() {
   const auth = useApp((s) => s.auth);
   const course = useCourse();
   const audio = useAudioAvailable(course);
+  useWidgetSync(course);
   const dailyTick = useApp((s) => s.dailyTick);
   useThemeAttrs();
   useEffect(() => { dailyTick(audio); }, [dailyTick, audio, loc.pathname]);
@@ -97,5 +100,5 @@ function Shell() {
 }
 
 export default function App() {
-  return <HashRouter><Shell /></HashRouter>;
+  return <HashRouter><Splash /><Shell /></HashRouter>;
 }

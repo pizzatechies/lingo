@@ -15,7 +15,7 @@ function precacheManifest(): Plugin {
 
 export default defineConfig({
   base: './',
-  define: { __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '1.3.0') },
+  define: { __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '1.4.0') },
   plugins: [react(), precacheManifest()],
   build: { outDir: 'dist/client', emptyOutDir: true, chunkSizeWarningLimit: 900 },
   server: { proxy: { '/api': 'http://localhost:8787' } },
