@@ -2,5 +2,11 @@
   "appId": "ke.lugha.app",
   "appName": "Lugha Zetu",
   "webDir": "dist/client",
-  "android": { "backgroundColor": "#FFF8F0" }
+  "android": {
+    "backgroundColor": "#FFF8F0"
+  },
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#FFF8F0"
+  }
 }

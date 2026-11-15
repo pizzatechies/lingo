@@ -218,3 +218,21 @@ p { line-height: 1.5; margin: 0 0 .8em; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .side .card { margin-bottom: 1rem; }
 .row > .bar { flex: 1; }
+
+/* ---------- Safe areas (iPhone notch / Dynamic Island, rounded corners, landscape) ----------
+   The app draws edge to edge (viewport-fit=cover), so every top-of-screen element is pushed below
+   the status bar, and a solid band sits behind the status bar so content never scrolls under the notch. */
+:root { --sat: env(safe-area-inset-top, 0px); --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px); --sab: env(safe-area-inset-bottom, 0px); }
+body::before { content: ''; position: fixed; inset: 0 0 auto; height: var(--sat); background: var(--bg); z-index: 35; pointer-events: none; }
+.main { padding-top: var(--sat); padding-left: max(16px, var(--sal)); padding-right: max(16px, var(--sar)); }
+.session { padding-top: var(--sat); padding-left: max(16px, var(--sal)); padding-right: max(16px, var(--sar)); }
+.topbar { top: var(--sat); padding-top: .75rem; padding-bottom: .65rem; border-bottom: 1px solid var(--border); margin-left: calc(-1 * max(16px, var(--sal))); margin-right: calc(-1 * max(16px, var(--sar))); padding-left: max(16px, var(--sal)); padding-right: max(16px, var(--sar)); margin-bottom: .8rem; }
+.session-top { padding-top: .9rem; }
+.footer { padding-bottom: calc(1rem + var(--sab)); }
+.nav { padding-left: max(.25rem, var(--sal)); padding-right: max(.25rem, var(--sar)); }
+.modal { max-height: calc(90dvh - var(--sat)); }
+@media (min-width: 900px) {
+  .nav { padding-top: calc(1.2rem + var(--sat)); }
+  .side { padding-top: calc(1.2rem + var(--sat)); }
+  .topbar { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
+}

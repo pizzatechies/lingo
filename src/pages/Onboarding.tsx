@@ -52,7 +52,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="main" style={{ paddingTop: '1rem', paddingBottom: '2rem' }}>
+    <div className="main" style={{ paddingTop: 'calc(1rem + var(--sat))', paddingBottom: '2rem' }}>
       {step > 0 && <div className="row" style={{ marginBottom: '1rem' }}><button className="icon-btn" onClick={() => setStep(step - 1)} aria-label="Back">←</button><div className="bar grow"><i style={{ width: `${(step / (steps.length - 1)) * 100}%` }} /></div></div>}
       {cur === 'welcome' && (
         <div className="hero">
