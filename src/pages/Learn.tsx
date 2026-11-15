@@ -85,12 +85,12 @@ export default function Learn() {
                 {!unlocked && <button className="btn small" onClick={() => nav(`/session/test/${u.index - 1}`)}>⏩ Jump here</button>}
               </div>
             </div>
-            <div className="path" style={{ width: W, height: nodes.length * STEP + 30 }}>
-              <svg className="string" width={W} height={nodes.length * STEP + 30} aria-hidden>
-                <path d={nodes.map((_, i) => `${i ? 'L' : 'M'}${W / 2 + Math.sin(i * 0.9) * 90} ${i * STEP + 55}`).join(' ')} stroke="var(--border)" strokeWidth="5" fill="none" strokeDasharray="2 9" strokeLinecap="round" />
+            <div className="path" style={{ width: W, height: nodes.length * STEP + 50 }}>
+              <svg className="string" width={W} height={nodes.length * STEP + 50} aria-hidden>
+                <path d={nodes.map((_, i) => `${i ? 'L' : 'M'}${W / 2 + Math.sin(i * 0.9) * 90} ${i * STEP + 80}`).join(' ')} stroke="var(--border)" strokeWidth="5" fill="none" strokeDasharray="2 9" strokeLinecap="round" />
               </svg>
               {nodes.map((n, i) => {
-                const x = W / 2 + Math.sin(i * 0.9) * 90, y = i * STEP + 55;
+                const x = W / 2 + Math.sin(i * 0.9) * 90, y = i * STEP + 80;
                 return (
                   <div key={n.id}>
                     <button className={`bead ${n.state === 'locked' ? 'locked' : ''} ${n.state === 'done' ? 'done' : ''} ${n.gold ? 'gold' : ''} ${n.id === current ? 'current' : ''}`} data-label="Start" style={{ left: x, top: y }}
