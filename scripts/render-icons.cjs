@@ -36,6 +36,14 @@ const sized = (svg, w) => svg.replace('<svg ', `<svg width="${w}" height="${w}" 
       }
     }
   }
+  // iOS: the App Store icon must be a full-bleed, opaque square (iOS rounds the corners itself).
+  const ios = path.join(root, 'ios/App/App/Assets.xcassets');
+  if (fs.existsSync(ios)) {
+    await render(path.join(ios, 'AppIcon.appiconset/AppIcon-512@2x.png'), 1024, 1024, `<div style="width:1024px;height:1024px;background:#D9541E;display:grid;place-items:center">${sized(mark, 1024 * 0.76)}</div>`);
+    const m = 2732;
+    const splash = `<div style="width:${m}px;height:${m}px;background:#FFF8F0;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:${m * 0.03}px;font-family:sans-serif">${sized(icon, m * 0.2)}<div style="font-weight:900;font-size:${m * 0.05}px;color:#D9541E">Lugha Zetu</div><div style="position:absolute;bottom:${m * 0.3}px;font-size:${m * 0.018}px;color:#7A6455">by <b>Pizza Technologies</b></div></div>`;
+    for (const f of ['splash-2732x2732.png', 'splash-2732x2732-1.png', 'splash-2732x2732-2.png']) await render(path.join(ios, 'Splash.imageset', f), m, m, splash);
+  }
   await b.close();
   console.log('icons rendered');
 })();

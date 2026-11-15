@@ -139,3 +139,19 @@ server/           Express + node:sqlite API    tests/         unit, content, API
 ---
 
 © Pizza Technologies. Lugha Zetu is built and maintained by Pizza Technologies.
+
+## iPhone app (IPA)
+
+The `ios/` folder is the Capacitor iOS project (Swift Package Manager, iOS 14+). iOS apps can only be compiled on
+macOS, so the **"iOS build (IPA)" GitHub Actions workflow** builds it on a GitHub-hosted Mac:
+
+1. Open the repo's **Actions** tab → **iOS build (IPA)** → **Run workflow** (it also runs on pushes that change the app).
+2. Download the **LughaZetu-iOS** artifact from the finished run.
+
+It always produces an **unsigned** `.ipa`. iPhones only install signed apps, so either:
+- sideload the unsigned IPA with **Sideloadly** or **AltStore**, which sign it with your own Apple ID (free accounts: 7-day expiry), or
+- add these repository secrets to get a **signed** `.ipa` for TestFlight, the App Store or ad-hoc devices
+  (needs an Apple Developer account): `IOS_CERTIFICATE_P12_BASE64`, `IOS_CERTIFICATE_PASSWORD`,
+  `IOS_PROVISION_PROFILE_BASE64`, `IOS_TEAM_ID`, optional `IOS_EXPORT_METHOD` (`app-store`, `ad-hoc`, `development`).
+
+On a Mac you can also run `npm run build && npx cap sync ios && npx cap open ios` and build from Xcode.
