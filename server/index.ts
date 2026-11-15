@@ -13,6 +13,7 @@ db.exec('PRAGMA journal_mode = WAL;');
 const app = createApp({
   db,
   dataDir,
+  corsOrigins: process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',').map((s) => s.trim()) : undefined,
   moderators: (process.env.MODERATORS ?? '').split(',').map((s) => s.trim()).filter(Boolean),
   approvalVotes: Number(process.env.APPROVAL_VOTES ?? 3),
   // Built client lives next to the compiled server (dist/client) — or pass CLIENT_DIR.

@@ -2,7 +2,7 @@
   "name": "lugha",
   "version": "1.0.0",
   "private": true,
-  "description": "Lugha — learn Kenyan languages. Free, offline-first, community-powered.",
+  "description": "Lugha \u2014 learn Kenyan languages. Free, offline-first, community-powered.",
   "type": "module",
   "engines": {
     "node": ">=22.13"
@@ -15,9 +15,15 @@
     "start": "node --no-warnings dist/server/index.js",
     "typecheck": "tsc --noEmit && tsc -p server/tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:e2e": "node tests/e2e/smoke.cjs"
+    "test:e2e": "node tests/e2e/smoke.cjs",
+    "android:sync": "vite build && cap sync android",
+    "android:apk": "npm run android:sync && cd android && ./gradlew assembleRelease",
+    "android:apk:debug": "npm run android:sync && cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
+    "@capacitor-community/text-to-speech": "^6.1.0",
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/core": "^7.6.10",
     "express": "^4.21.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -25,6 +31,7 @@
     "zustand": "^4.5.7"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.6.10",
     "@types/express": "^4.17.21",
     "@types/node": "^22.10.2",
     "@types/react": "^18.3.12",

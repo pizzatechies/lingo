@@ -14,7 +14,7 @@ const MONDAY_EPOCH = Date.UTC(1970, 0, 5);
 export const weekOf = (t = Date.now()) => Math.floor((t + EAT - MONDAY_EPOCH) / WEEK);
 export const weekEnds = (w: number) => MONDAY_EPOCH + (w + 1) * WEEK - EAT;
 
-export interface AppOptions { db: DatabaseSync; dataDir: string; moderators?: string[]; approvalVotes?: number; clientDir?: string; now?: () => number }
+export interface AppOptions { corsOrigins?: string[]; db: DatabaseSync; dataDir: string; moderators?: string[]; approvalVotes?: number; clientDir?: string; now?: () => number }
 type User = { id: number; username: string; display_name: string; role: string; league_tier: number; total_xp: number; streak: number };
 type Req = Request & { user?: User };
 
@@ -75,6 +75,19 @@ export function createApp(opts: AppOptions) {
   app.disable('x-powered-by');
   app.set('trust proxy', 1);
   app.use((_, res, next) => { res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin'); next(); });
+  // The Android app runs on https://localhost (Capacitor), so it needs CORS to reach a hosted API.
+  const cors = new Set(opts.corsOrigins ?? ['https://localhost', 'capacitor://localhost', 'http://localhost']);
+  app.use('/api', (req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin && cors.has(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Vary', 'Origin');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    }
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
+    next();
+  });
   app.use('/api', express.json({ limit: '3mb' }));
 
   const q = <T>(sql: string, ...p: (string | number | null)[]) => db.prepare(sql).get(...p) as T | undefined;

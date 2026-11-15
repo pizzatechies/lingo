@@ -71,6 +71,35 @@ locally; leagues, friends, teams, sync and community review appear when the API 
 
 Docker: `docker build -t lugha . && docker run -p 8787:8787 -v lugha-data:/data lugha`
 
+## Android app (APK)
+
+The `android/` folder is a [Capacitor](https://capacitorjs.com) project that packages the same web app as a native
+Android app (Android 6.0+). Inside the app, audio uses the phone's own text-to-speech engine (Google TTS includes
+Kiswahili), and the microphone permission enables speaking exercises and community recordings.
+
+Requirements: JDK 21 and the Android SDK (platform 35, build-tools 35) with `ANDROID_HOME` set, or Android Studio.
+
+```bash
+npm run android:apk:debug   # → android/app/build/outputs/apk/debug/app-debug.apk (installable, debug-signed)
+npm run android:apk         # → android/app/build/outputs/apk/release/app-release.apk
+```
+
+To sign release builds, create `android/keystore.properties` (gitignored — never commit it):
+
+```properties
+storeFile=/absolute/path/to/lugha-release.jks
+storePassword=...
+keyAlias=lugha
+keyPassword=...
+```
+
+Generate a key with `keytool -genkeypair -keystore lugha-release.jks -alias lugha -keyalg RSA -keysize 2048 -validity 10000`.
+**Keep the keystore safe**: Android only installs updates signed with the same key.
+
+Online features (leagues, friends, teams, sync, community) need a hosted server. Build the app pointing at it with
+`VITE_API_BASE=https://your-server.example npm run android:apk`. The server already allows the app's origin via CORS
+(`CORS_ORIGINS` overrides the list). Without a server the app runs fully offline.
+
 ## Tests
 
 ```bash
