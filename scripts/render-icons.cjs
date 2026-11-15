@@ -32,7 +32,7 @@ const sized = (svg, w) => svg.replace('<svg ', `<svg width="${w}" height="${w}" 
         else if (f === 'ic_launcher_round.png') await render(file, w, h, `<div style="width:${w}px;height:${w}px;border-radius:50%;background:#D9541E;display:grid;place-items:center">${sized(mark, w * 0.86)}</div>`, true);
         // Adaptive icon foreground: keep the mark inside the 66% safe zone.
         else if (f === 'ic_launcher_foreground.png') await render(file, w, h, `<div style="width:${w}px;height:${w}px;display:grid;place-items:center">${sized(mark, w * 0.62)}</div>`, true);
-        else if (f === 'splash.png') await render(file, w, h, `<div style="width:${w}px;height:${h}px;background:#FFF8F0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:${m * 0.04}px;font-family:sans-serif">${sized(icon, m * 0.34)}<div style="font-weight:900;font-size:${m * 0.085}px;color:#D9541E">Lugha Zetu</div></div>`);
+        else if (f === 'splash.png') await render(file, w, h, `<div style="width:${w}px;height:${h}px;background:#FFF8F0;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:${m * 0.04}px;font-family:sans-serif">${sized(icon, m * 0.34)}<div style="font-weight:900;font-size:${m * 0.085}px;color:#D9541E">Lugha Zetu</div><div style="position:absolute;bottom:${m * 0.08}px;font-size:${m * 0.032}px;color:#7A6455">by <b>Pizza Technologies</b></div></div>`);
       }
     }
   }

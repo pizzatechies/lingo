@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+
+declare global { const __APP_VERSION__: string }
 import { loadCourse, getLoadedCourse } from './content';
 import type { Course, CourseId } from './content/types';
 import { canSpeakLang, onVoicesChanged, recognitionSupported, recordingSupported } from './lib/audio';

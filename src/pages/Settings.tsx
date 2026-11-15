@@ -95,7 +95,12 @@ export default function Settings() {
           <button className="btn ghost" onClick={() => setConfirmReset(true)}>Reset all progress</button>
         </div>
       </div>
-      <p className="small muted center" style={{ margin: '1.5rem 0' }}>Lugha Zetu · free & open · <Link to="/community">Help build it</Link></p>
+      <div className="card center" style={{ marginTop: '1rem' }}>
+        <img src="./icons/icon.svg" alt="" width="56" height="56" />
+        <h3 style={{ margin: '.4rem 0 .1rem' }}>Lugha Zetu</h3>
+        <div className="small muted">Version {__APP_VERSION__} · made in Kenya by <b>Pizza Technologies</b></div>
+        <p className="small muted" style={{ margin: '.6rem 0 0' }}>Free & open · <Link to="/community">Help build it</Link></p>
+      </div>
       <Modal open={confirmReset} onClose={() => setConfirmReset(false)} label="Reset progress">
         <div className="stack center"><h2>Reset everything?</h2><p className="muted">This deletes all progress on this device. Export first if you might want it back.</p><button className="btn danger" onClick={() => { s.reset(); setConfirmReset(false); }}>Yes, reset</button><button className="btn ghost" onClick={() => setConfirmReset(false)}>Cancel</button></div>
       </Modal>

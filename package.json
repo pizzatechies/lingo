@@ -1,8 +1,8 @@
 {
-  "name": "lugha",
-  "version": "1.0.0",
+  "name": "lugha-zetu",
+  "version": "1.2.0",
   "private": true,
-  "description": "Lugha \u2014 learn Kenyan languages. Free, offline-first, community-powered.",
+  "description": "Lugha Zetu by Pizza Technologies \u2014 learn Kenyan languages. Free, offline-first, community-powered.",
   "type": "module",
   "engines": {
     "node": ">=22.13"
@@ -42,5 +42,6 @@
     "typescript": "^5.6.3",
     "vite": "^5.4.21",
     "vitest": "^2.1.9"
-  }
+  },
+  "author": "Pizza Technologies"
 }

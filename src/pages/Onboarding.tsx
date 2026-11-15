@@ -67,6 +67,7 @@ export default function Onboarding() {
           <div className="kikoi" style={{ width: 200 }} />
           <button className="btn block" style={{ maxWidth: 360 }} onClick={next}>Get started</button>
           <p className="small muted">No ads · No paywalls · No account needed</p>
+          <p className="small muted" style={{ marginTop: '1.5rem' }}>by <b>Pizza Technologies</b></p>
         </div>
       )}
       {cur === 'course' && (

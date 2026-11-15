@@ -2,7 +2,7 @@
 
 <img src="public/icons/icon.svg" width="96" alt="Lugha Zetu icon: a speech bubble woven from beadwork">
 
-Lugha Zetu ("our languages" in Kiswahili) is a free, offline-first language-learning app for Kenyan languages:
+Lugha Zetu ("our languages" in Kiswahili), by **Pizza Technologies**, is a free, offline-first language-learning app for Kenyan languages:
 **Kiswahili** (full course), plus beta courses in **Gĩkũyũ, Dholuo, Kalenjin, Maa and Sheng**, and an
 incubator where native speakers can bring more languages (Oluluhya, Kikamba, Somali, Ekegusii, Mijikenda, Kimeru, Ng'aturkana, Kiembu).
 
@@ -135,3 +135,7 @@ src/content/      course data + builder        src/lib/       learning engine (a
 src/pages/        screens                      src/state/     persisted app store (zustand)
 server/           Express + node:sqlite API    tests/         unit, content, API and e2e tests
 ```
+
+---
+
+© Pizza Technologies. Lugha Zetu is built and maintained by Pizza Technologies.
