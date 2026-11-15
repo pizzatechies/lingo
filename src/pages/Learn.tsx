@@ -47,7 +47,7 @@ function DailyCard({ course }: { course: Course }) {
         {pv ? (
           <div style={{ marginTop: '.3rem' }}><b>Methali ya leo:</b> <button className="hintword" onClick={() => speak(pv.t, course.ttsLang)}>{pv.t}</button><div className="small muted">“{pv.literal}” — {pv.meaning}</div></div>
         ) : wotd ? (
-          <div style={{ marginTop: '.3rem' }}><b>Word of the day:</b> {wotd.emoji} {wotd.t} — <span className="muted">{wotd.en}</span></div>
+          <div style={{ marginTop: '.3rem' }}><b>Word of the day:</b> {wotd.emoji} {wotd.t} — <span className="muted">{s.courses[course.id]?.base === 'sw' && wotd.sw ? wotd.sw : wotd.en}</span></div>
         ) : null}
       </div>
     </div>

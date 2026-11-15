@@ -27,7 +27,7 @@ export function AccountForm({ onDone }: { onDone?: () => void }) {
       {mode === 'register' && <input className="input" placeholder="Display name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={40} />}
       <input className="input" type="password" placeholder="Password (8+ characters)" autoComplete={mode === 'register' ? 'new-password' : 'current-password'} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
       {err && <div className="notice" role="alert">{err}</div>}
-      <button className="btn" disabled={busy}>{mode === 'register' ? 'Create account' : 'Sign in'}</button>
+      <button type="submit" className="btn" disabled={busy}>{mode === 'register' ? 'Create account' : 'Sign in'}</button>
       <p className="small muted">Your current progress is kept and synced. No email needed.</p>
     </form>
   );
