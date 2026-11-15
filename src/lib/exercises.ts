@@ -87,9 +87,14 @@ class Gen {
 
   picture(w: Word): Exercise | null {
     if (!w.emoji) return null;
-    const pool = this.words.filter((o) => o.emoji && o.id !== w.id && o.emoji !== w.emoji && normBase(this.g(o)) !== normBase(this.g(w)));
-    if (pool.length < 2) return null;
-    const others = sample(pool, 3, this.rng);
+    const used = new Set([normTarget(w.t)]), emojis = new Set([w.emoji]);
+    const others: Word[] = [];
+    for (const o of shuffle(this.words, this.rng)) {
+      if (!o.emoji || emojis.has(o.emoji) || used.has(normTarget(o.t)) || normBase(this.g(o)) === normBase(this.g(w))) continue;
+      used.add(normTarget(o.t)); emojis.add(o.emoji); others.push(o);
+      if (others.length === 3) break;
+    }
+    if (others.length < 2) return null;
     const opts = shuffle([w, ...others], this.rng);
     return { type: 'picture', key: key('pic'), itemId: w.id, prompt: this.g(w), options: opts.map((o) => ({ text: o.t, emoji: o.emoji! })), correct: opts.indexOf(w) };
   }

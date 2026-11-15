@@ -36,6 +36,15 @@ export interface CourseIn {
 
 export function defineCourse(c: CourseIn): Course {
   const id = c.meta.id;
+  // Homonyms (e.g. karibu = "welcome" / "near") get distinct ids.
+  const glossById = new Map<string, string>();
+  const itemId = (kind: 'w' | 's', t: string, en: string) => {
+    let base = `${id}.${kind}.${slug(t)}`;
+    const prev = glossById.get(base);
+    if (prev !== undefined && prev !== en) base = `${base}~${slug(en)}`;
+    if (!glossById.has(base)) glossById.set(base, en);
+    return base;
+  };
   const units: Unit[] = c.units.map((u, ui) => ({
     id: `${id}.u${ui + 1}`,
     index: ui,
@@ -48,8 +57,8 @@ export function defineCourse(c: CourseIn): Course {
     lessons: u.lessons.map((l, li): Lesson => ({
       id: `${id}.u${ui + 1}.l${li + 1}`,
       title: l.title,
-      words: l.items.filter((x): x is WordIn => x.kind === 'word').map((x) => ({ ...x, id: `${id}.w.${slug(x.t)}` })),
-      sentences: l.items.filter((x): x is SentenceIn => x.kind === 'sentence').map((x) => ({ ...x, id: `${id}.s.${slug(x.t)}` })),
+      words: l.items.filter((x): x is WordIn => x.kind === 'word').map((x) => ({ ...x, id: itemId('w', x.t, x.en) })),
+      sentences: l.items.filter((x): x is SentenceIn => x.kind === 'sentence').map((x) => ({ ...x, id: itemId('s', x.t, x.en) })),
       chats: (l.chats ?? []).map((x) => ({ ...x, id: `${id}.c.${slug(x.say)}.${slug(x.reply)}` })),
     })),
   }));
