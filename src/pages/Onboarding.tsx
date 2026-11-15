@@ -56,7 +56,12 @@ export default function Onboarding() {
       {step > 0 && <div className="row" style={{ marginBottom: '1rem' }}><button className="icon-btn" onClick={() => setStep(step - 1)} aria-label="Back">←</button><div className="bar grow"><i style={{ width: `${(step / (steps.length - 1)) * 100}%` }} /></div></div>}
       {cur === 'welcome' && (
         <div className="hero">
-          <Mascot mood="wave" size={170} />
+          <div className="row" style={{ justifyContent: 'center' }}>
+            <img src="./icons/icon.svg" alt="" width="44" height="44" />
+            <span style={{ fontWeight: 900, fontSize: '1.6rem', color: 'var(--primary)' }}>Lugha Zetu</span>
+          </div>
+          <p className="small muted" style={{ marginTop: '-.4rem' }}>“Our languages” in Kiswahili</p>
+          <Mascot mood="wave" size={150} />
           <h1>Karibu! I'm Twiga.</h1>
           <p className="muted" style={{ maxWidth: 420 }}>Learn Kiswahili, Gĩkũyũ, Dholuo, Kalenjin, Maa and Sheng — free forever, works offline, and built together with native speakers.</p>
           <div className="kikoi" style={{ width: 200 }} />

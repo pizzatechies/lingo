@@ -820,7 +820,7 @@ export default defineCourse({
     { sym: 'mb nd nj', sound: 'Nasal + consonant said together as one sound.', example: 'mbuzi', exampleEn: 'goat' },
   ],
   culture: [
-    g('Sheng', 'In cities you will hear Sheng, a fast-changing mix of Swahili, English and other Kenyan languages. Lugha has a separate Sheng course.'),
+    g('Sheng', 'In cities you will hear Sheng, a fast-changing mix of Swahili, English and other Kenyan languages. Lugha Zetu has a separate Sheng course.'),
     g('Hakuna matata', 'Yes, it is real Swahili: "there are no problems". Kenyans more often say "hakuna shida" or simply "poa".'),
   ],
 });

@@ -24,7 +24,7 @@ function reminderIcs(time: string) {
   const d = new Date(); d.setHours(Number(h), Number(m), 0, 0);
   const pad = (n: number) => String(n).padStart(2, '0');
   const stamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
-  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Lugha//Reminder//EN', 'BEGIN:VEVENT', `UID:lugha-${Date.now()}@lugha.app`, `DTSTAMP:${stamp}`, `DTSTART:${stamp}`, 'DURATION:PT10M', 'RRULE:FREQ=DAILY', 'SUMMARY:Lugha — time to practise 🦒', 'DESCRIPTION:Keep your streak alive with a quick lesson.', 'BEGIN:VALARM', 'TRIGGER:PT0M', 'ACTION:DISPLAY', 'DESCRIPTION:Lugha practice', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Lugha//Reminder//EN', 'BEGIN:VEVENT', `UID:lugha-${Date.now()}@lugha.app`, `DTSTAMP:${stamp}`, `DTSTART:${stamp}`, 'DURATION:PT10M', 'RRULE:FREQ=DAILY', 'SUMMARY:Lugha Zetu — time to practise', 'DESCRIPTION:Keep your streak alive with a quick lesson.', 'BEGIN:VALARM', 'TRIGGER:PT0M', 'ACTION:DISPLAY', 'DESCRIPTION:Lugha Zetu practice', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
 }
 
 export default function Settings() {
@@ -83,7 +83,7 @@ export default function Settings() {
       </div>
       <div className="card" style={{ marginTop: '1rem' }}>
         <h3>Offline & data</h3>
-        <p className="small muted">Lugha works offline after the first visit. Your progress lives on this device{s.auth ? ' and syncs to your account' : ''}.</p>
+        <p className="small muted">Lugha Zetu works offline after the first visit. Your progress lives on this device{s.auth ? ' and syncs to your account' : ''}.</p>
         <div className="stack">
           <button className="btn soft" onClick={async () => { if (course) { await Promise.all((['sw', 'ki', 'luo', 'kln', 'mas', 'sheng'] as const).map(loadCourse)); setMsg('All courses downloaded for offline use.'); } }}>⬇️ Download all courses for offline</button>
           <button className="btn soft" onClick={() => download(`lugha-progress-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(progressSnapshot(s)), 'application/json')}>💾 Export my progress</button>
@@ -95,7 +95,7 @@ export default function Settings() {
           <button className="btn ghost" onClick={() => setConfirmReset(true)}>Reset all progress</button>
         </div>
       </div>
-      <p className="small muted center" style={{ margin: '1.5rem 0' }}>Lugha · free & open · <Link to="/community">Help build it</Link></p>
+      <p className="small muted center" style={{ margin: '1.5rem 0' }}>Lugha Zetu · free & open · <Link to="/community">Help build it</Link></p>
       <Modal open={confirmReset} onClose={() => setConfirmReset(false)} label="Reset progress">
         <div className="stack center"><h2>Reset everything?</h2><p className="muted">This deletes all progress on this device. Export first if you might want it back.</p><button className="btn danger" onClick={() => { s.reset(); setConfirmReset(false); }}>Yes, reset</button><button className="btn ghost" onClick={() => setConfirmReset(false)}>Cancel</button></div>
       </Modal>

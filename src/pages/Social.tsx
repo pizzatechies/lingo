@@ -106,7 +106,7 @@ export default function Social() {
   const [tab, setTab] = useState<'league' | 'friends' | 'team'>('league');
   if (status === 'unknown') return <div className="spinner" />;
   if (status === 'offline') return (
-    <div className="hero"><Mascot mood="think" size={130} /><h1>You're learning offline</h1><p className="muted">Leagues, friends and Harambee teams need the Lugha server. Everything else — lessons, practice, stories, streaks — works without a connection.</p></div>
+    <div className="hero"><Mascot mood="think" size={130} /><h1>You're learning offline</h1><p className="muted">Leagues, friends and Harambee teams need the Lugha Zetu server. Everything else — lessons, practice, stories, streaks — works without a connection.</p></div>
   );
   if (!user) return (
     <>

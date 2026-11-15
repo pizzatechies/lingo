@@ -67,7 +67,7 @@ function Shell() {
   return (
     <div className="shell">
       <nav className="nav" aria-label="Main">
-        <div className="brand">🦒 Lugha</div>
+        <div className="brand"><img src="./icons/icon.svg" alt="" width="34" height="34" /> Lugha Zetu</div>
         {NAV.map((n) => (
           <NavLink key={n.to} to={n.to} end={n.to === '/'} className={({ isActive }) => (isActive ? 'active' : '')}>
             <span className="ico" aria-hidden>{n.ico}</span><span>{n.label}</span>

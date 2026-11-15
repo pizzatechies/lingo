@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Lugha</string>
-    <string name="title_activity_main">Lugha</string>
+    <string name="app_name">Lugha Zetu</string>
+    <string name="title_activity_main">Lugha Zetu</string>
     <string name="package_name">ke.lugha.app</string>
     <string name="custom_url_scheme">ke.lugha.app</string>
 </resources>

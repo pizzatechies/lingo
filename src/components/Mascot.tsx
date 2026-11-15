@@ -1,4 +1,4 @@
-/** Twiga — Lugha's original giraffe mascot, drawn in SVG. */
+/** Twiga — Lugha Zetu's original giraffe mascot, drawn in SVG. */
 export type Mood = 'happy' | 'cheer' | 'think' | 'sad' | 'wave';
 
 export function Mascot({ mood = 'happy', size = 120, outfit }: { mood?: Mood; size?: number; outfit?: string | null }) {

@@ -160,7 +160,7 @@ export default function Community() {
       {tab === 'record' && user && <Record courseId={course.id} />}
       {tab === 'mine' && (
         <div className="stack">
-          {!online && <div className="notice">Offline — your reports are saved on this device and will be sent when you connect to the Lugha server.</div>}
+          {!online && <div className="notice">Offline — your reports are saved on this device and will be sent when you connect to the Lugha Zetu server.</div>}
           {online && !user && <div className="card"><p className="small">Sign in to vote on fixes, record audio and send your reports.</p><AccountForm /></div>}
           {online && user && reports.some((r) => !r.synced) && <button className="btn soft small" onClick={() => sync().catch(() => {})}>Send {reports.filter((r) => !r.synced).length} pending reports</button>}
           {reports.length === 0 ? <div className="empty">Tap ⚑ Report during any exercise to suggest a better answer or correction.</div> : reports.map((r) => (

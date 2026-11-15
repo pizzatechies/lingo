@@ -1,17 +1,20 @@
-# 🦒 Lugha — learn Kenya's languages
+# Lugha Zetu — learn Kenya's languages
 
-Lugha ("language" in Kiswahili) is a free, offline-first language-learning app for Kenyan languages:
+<img src="public/icons/icon.svg" width="96" alt="Lugha Zetu icon: a speech bubble woven from beadwork">
+
+Lugha Zetu ("our languages" in Kiswahili) is a free, offline-first language-learning app for Kenyan languages:
 **Kiswahili** (full course), plus beta courses in **Gĩkũyũ, Dholuo, Kalenjin, Maa and Sheng**, and an
 incubator where native speakers can bring more languages (Oluluhya, Kikamba, Somali, Ekegusii, Mijikenda, Kimeru, Ng'aturkana, Kiembu).
 
 It has the gamified mechanics people know from popular language apps — a learning path, streaks, XP, leagues,
 quests — reworked around a few ideas: **learning is never rationed, it works on cheap phones with patchy data,
 and the courses are built with the communities that speak these languages.** It has its own look (kikoi stripes,
-a beaded-necklace learning path) and its own mascot, Twiga the giraffe.
+a beaded-necklace learning path) and its own mascot, Twiga the giraffe. The icon is a speech bubble woven from rings of beadwork — language, made the Kenyan way
+(`python3 scripts/make-logo.py && node scripts/render-icons.cjs` regenerates it everywhere).
 
 ## What's improved
 
-| Typical app feature | Lugha's take |
+| Typical app feature | Lugha Zetu's take |
 | --- | --- |
 | **Hearts / energy** that lock you out after mistakes | No hearts by default. Mistakes come back at the end of the lesson to retry. Optional *Hardcore mode* for those who want hearts — refilled by practising, never by paying. |
 | **Paywalled extras** (unlimited practice, mistakes review, "explain my answer", legendary levels) | Everything is free: smart review, mistakes, listening, speaking, speed round, roleplay, gold challenges, explanations. Beads (earned only by learning) buy cosmetics and rest days. |
