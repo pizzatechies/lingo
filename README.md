@@ -28,7 +28,7 @@ a beaded-necklace learning path) and its own mascot, Twiga the giraffe.
 | **Generic content** | Kenyan context everywhere: matatus, M-Pesa, Swahili time (saa moja = 7 a.m.), methali (proverbs) of the day, culture guidebooks, folktale-style stories. |
 
 ### Learning features
-- **12-unit Kiswahili course**: 50 lessons, 400+ words and phrases, 5 interactive stories, 18 proverbs, pronunciation guide.
+- **12-unit Kiswahili course**: 46 lessons, ~470 words and phrases, 5 interactive stories, 18 proverbs, pronunciation guide.
 - **Exercise types**: new-word cards, multiple choice, picture choice, match pairs, word-bank translation (both directions), typing, fill-in-the-blank, listening (tap or type what you hear, normal & slow), speaking (speech recognition for Kiswahili, record-and-compare for every language), dialogue roleplay.
 - **Adaptive difficulty**: harder exercise types appear as your rolling accuracy rises.
 - **Practice hub**: smart review, fix my mistakes, listening, speaking, 60-second speed round, conversations; a word list with memory strength.
