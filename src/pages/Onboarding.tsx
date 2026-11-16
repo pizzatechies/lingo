@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { COURSE_META, cachedTranslations } from '../content';
+import { COURSE_META, cachedTranslations, metaOf } from '../content';
 import { communityLanguages } from '../content/languages';
 import type { BaseLang, CourseId } from '../content/types';
 import { Mascot } from '../components/Mascot';
@@ -54,7 +54,7 @@ export default function Onboarding() {
   const [goal, setGoal] = useState(20);
   const [name, setName] = useState('');
   const [reason, setReason] = useState<string | null>(null);
-  const meta = COURSE_META.find((c) => c.id === course);
+  const meta = course ? metaOf(course) : undefined;
   const steps = ['welcome', 'course', ...(meta && meta.learnFrom.length > 1 ? ['base'] : []), 'reason', 'goal', 'start'];
   const cur = steps[step];
   const next = () => setStep((s) => Math.min(steps.length - 1, s + 1));

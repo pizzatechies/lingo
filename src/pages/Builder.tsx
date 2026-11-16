@@ -128,8 +128,8 @@ export default function Builder() {
           <input ref={file} type="file" accept=".csv,text/csv" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = ''; }} />
         </div>
         {Object.keys(pending).length > 0 && (
-          online && user ? <button className="btn block accent" style={{ marginTop: '.8rem' }} onClick={submit} disabled={busy}>Send {Object.keys(pending).length} translations for review</button>
-            : <p className="small muted" style={{ marginTop: '.8rem' }}>{Object.keys(pending).length} translations saved on this device. {online ? 'Sign in below to send them for review.' : 'Connect to the Lugha Zetu server to send them, or share the worksheet with the team.'}</p>
+          online && user ? <button className="btn block accent" style={{ marginTop: '.8rem' }} onClick={submit} disabled={busy}>Send {Object.keys(pending).length} translation{Object.keys(pending).length === 1 ? '' : 's'} for review</button>
+            : <p className="small muted" style={{ marginTop: '.8rem' }}>{Object.keys(pending).length} translation{Object.keys(pending).length === 1 ? '' : 's'} saved on this device. {online ? 'Sign in below to send them for review.' : 'Connect to the Lugha Zetu server to send them, or share the worksheet with the team.'}</p>
         )}
         {msg && <div className="notice info" style={{ marginTop: '.8rem' }} role="status">{msg}</div>}
       </div>

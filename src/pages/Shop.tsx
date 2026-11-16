@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { feedback } from '../lib/feedback';
 import { SHOP, useApp } from '../state/store';
 import { Mascot } from '../components/Mascot';
 
@@ -20,7 +21,7 @@ export default function Shop() {
               <span style={{ fontSize: '2rem' }}>{i.icon}</span>
               <div className="grow"><b>{i.name}</b><div className="small muted">{i.desc}{i.id === 'rest' ? ` You have ${s.streak.restDays}.` : ''}{i.id === 'boost' && boost ? ` Active: ${boost} min left.` : ''}</div></div>
               {owned ? <button className="btn small soft" onClick={() => s.equip(s.inventory.outfit === i.id ? null : i.id)}>{s.inventory.outfit === i.id ? 'Take off' : 'Wear'}</button>
-                : <button className="btn small" disabled={s.beads < i.price} onClick={() => setMsg(s.buy(i.id) ? `Purchased ${i.name}!` : 'Not available right now.')}>📿 {i.price}</button>}
+                : <button className="btn small" disabled={s.beads < i.price} onClick={() => { const ok = s.buy(i.id); if (ok) feedback.reward(); else feedback.mismatch(); setMsg(ok ? `Purchased ${i.name}!` : 'Not available right now.'); }}>📿 {i.price}</button>}
             </div>
           );
         })}

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { feedback } from '../lib/feedback';
 import { useNavigate } from 'react-router-dom';
 import { useCourse } from '../hooks';
 import { useApp, type Summary } from '../state/store';
 import { speedPairs } from '../lib/exercises';
 import { shuffle } from '../lib/rng';
-import { sfx } from '../lib/audio';
 import { Bar } from '../components/ui';
 import { Mascot } from '../components/Mascot';
 
@@ -24,21 +24,21 @@ export default function Speed() {
   const rights = useMemo(() => shuffle(batch.map((p, i) => ({ ...p, i }))), [round, pairs.length]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!started || summary) return;
-    if (left <= 0) { setSummary(app.completeSession({ kind: 'speed', courseId: course!.id, correct: score, total: score, maxCombo: 0, newWords: 0, listens: 0, speedPairs: score })); return; }
+    if (left <= 0) { feedback.complete(); setSummary(app.completeSession({ kind: 'speed', courseId: course!.id, correct: score, total: score, maxCombo: 0, newWords: 0, listens: 0, speedPairs: score })); return; }
     const t = setTimeout(() => setLeft(left - 1), 1000);
     return () => clearTimeout(t);
   }, [started, left, summary]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!course) return <div className="spinner" />;
   const tap = (side: 'l' | 'r', i: number) => {
-    if (!sel || sel.side === side) return setSel({ side, i });
+    if (!sel || sel.side === side) { feedback.select(); return setSel({ side, i }); }
     const l = side === 'l' ? i : sel.i, r = side === 'r' ? i : sel.i;
     setSel(null);
     if (l === r) {
-      if (app.settings.sound) sfx.tap();
+      feedback.pair(score % 8);
       setScore((x) => x + 1);
       const g = [...gone, l];
       if (g.length >= batch.length) { setGone([]); setRound(round + 1); } else setGone(g);
-    } else if (app.settings.sound) sfx.wrong();
+    } else feedback.mismatch();
   };
   if (summary) return (
     <div className="session"><div className="done-screen"><Mascot mood="cheer" size={130} /><h1>{score} pairs!</h1><p className="muted">+{summary.xp} XP · +{summary.beads} beads</p><button className="btn block" onClick={() => nav('/practice')}>Continue</button></div></div>

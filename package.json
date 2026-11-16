@@ -1,6 +1,6 @@
 {
   "name": "lugha-zetu",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "description": "Lugha Zetu by Pizza Technologies — learn Kenyan languages. Free, offline-first, community-powered.",
   "type": "module",
@@ -24,6 +24,7 @@
     "@capacitor-community/text-to-speech": "^6.1.0",
     "@capacitor/android": "^7.6.10",
     "@capacitor/core": "^7.6.10",
+    "@capacitor/haptics": "^7.0.2",
     "@capacitor/ios": "^7.6.10",
     "@capacitor/splash-screen": "^7.0.5",
     "express": "^4.21.2",

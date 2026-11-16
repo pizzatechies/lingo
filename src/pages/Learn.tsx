@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { feedback } from '../lib/feedback';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCourse } from '../hooks';
 import type { Course, Unit } from '../content/types';
@@ -108,7 +109,7 @@ export default function Learn() {
                 return (
                   <div key={n.id}>
                     <button className={`bead ${n.state === 'locked' ? 'locked' : ''} ${n.state === 'done' ? 'done' : ''} ${n.gold ? 'gold' : ''} ${n.id === current ? 'current' : ''}`} data-label="Start" style={{ left: x, top: y }}
-                      onClick={() => setOpen(open === n.id ? null : n.id)} aria-label={`${n.title} (${n.state})`}>
+                      onClick={() => { feedback.select(); setOpen(open === n.id ? null : n.id); }} aria-label={`${n.title} (${n.state})`}>
                       {n.state === 'locked' ? '🔒' : n.icon}
                     </button>
                     {open === n.id && (

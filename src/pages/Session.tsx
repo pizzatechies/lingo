@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { feedback } from '../lib/feedback';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAudioAvailable, useCourse, speakingAvailable } from '../hooks';
 import type { Course } from '../content/types';
 import { lessonSession, masterySession, placementSession, reviewSession, roleplaySession, testSession, pickPraise, type Exercise, type GenContext, type GradedExercise, type ReviewMode } from '../lib/exercises';
 import { grade, type AnswerValue, type Grade } from '../lib/grade';
 import { lexiconFor } from '../lib/lexicon';
-import { sfx } from '../lib/audio';
 import { level, useApp, type SessionKind, type Summary } from '../state/store';
 import { BuildEx, ChatEx, ChoiceEx, FillEx, IntroEx, MatchEx, PictureEx, SpeakEx, TypeEx } from '../components/Exercises';
 import { Bar, Confetti, Modal } from '../components/ui';
@@ -83,7 +83,7 @@ function Player({ built, course, audio, onExit }: { built: Built; course: Course
 
   const finish = useCallback((final: typeof stats, override?: Partial<{ passed: boolean; unlockUnits: number }>) => {
     const passed = built.passMark !== undefined ? final.correct / Math.max(1, final.total) >= built.passMark : built.maxMistakes !== undefined ? final.mistakes <= built.maxMistakes : true;
-    if (app.settings.sound) sfx.complete();
+    if (passed) feedback.complete(); else feedback.failed();
     const s = app.completeSession({
       kind: built.kind, courseId: course.id, lessonId: built.lessonId, unitIndex: built.unitIndex, correct: final.correct, total: final.total,
       maxCombo: final.maxCombo, newWords: newWords.current.size, listens: final.listens, passed, minutes: Math.round((Date.now() - start.current) / 60000), ...override,
@@ -112,8 +112,7 @@ function Player({ built, course, audio, onExit }: { built: Built; course: Course
     if (!ex || ex.type === 'intro' || ex.type === 'match' || value === null || result) return;
     const g = grade(ex as GradedExercise, value);
     setResult(g);
-    if (app.settings.sound) (g.correct ? sfx.correct : sfx.wrong)();
-    if (!g.correct && app.settings.haptics) navigator.vibrate?.(120);
+    if (g.correct) feedback.correct(stats.combo + 1); else feedback.wrong();
     const itemId = (ex as GradedExercise).itemId;
     if (!itemId.includes('.c.')) {
       if (!app.srs[itemId]) newWords.current.add(itemId);

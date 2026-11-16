@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { previewFeedback } from '../lib/feedback';
 import { Link } from 'react-router-dom';
 import { metaOf } from '../content';
 import { progressSnapshot, useApp } from '../state/store';
@@ -74,8 +75,8 @@ export default function Settings() {
         <label className="toggle"><b>Theme</b>
           <select className="input" style={{ width: 'auto' }} value={s.settings.theme} onChange={(e) => set({ theme: e.target.value as 'system' })}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select>
         </label>
-        <Toggle label="Sound effects" checked={s.settings.sound} onChange={(v) => set({ sound: v })} />
-        <Toggle label="Vibration" checked={s.settings.haptics} onChange={(v) => set({ haptics: v })} />
+        <Toggle label="Sound effects" hint="Marimba-style cues for answers, combos and rewards" checked={s.settings.sound} onChange={(v) => { set({ sound: v }); if (v) setTimeout(previewFeedback, 0); }} />
+        <Toggle label="Haptic feedback" hint="Gentle taps and buzzes as you answer (iPhone & Android)" checked={s.settings.haptics} onChange={(v) => { set({ haptics: v }); if (v) setTimeout(previewFeedback, 0); }} />
         <Toggle label="Larger text" checked={s.settings.bigText} onChange={(v) => set({ bigText: v })} />
         <Toggle label="Reduce motion" checked={s.settings.reduceMotion} onChange={(v) => set({ reduceMotion: v })} />
         <Toggle label="Show leagues" hint="Prefer learning without competition? Turn this off." checked={s.settings.showLeagues} onChange={(v) => set({ showLeagues: v })} />

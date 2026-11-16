@@ -79,22 +79,3 @@ export async function startRecording(): Promise<{ stop: () => Promise<Blob> }> {
     }),
   };
 }
-
-let ctx: AudioContext | null = null;
-function tone(freq: number, start: number, dur: number, type: OscillatorType = 'sine', vol = 0.12) {
-  try {
-    ctx = ctx ?? new AudioContext();
-    const o = ctx.createOscillator(), gn = ctx.createGain();
-    o.type = type; o.frequency.value = freq;
-    const t = ctx.currentTime + start;
-    gn.gain.setValueAtTime(0, t); gn.gain.linearRampToValueAtTime(vol, t + 0.01); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(gn).connect(ctx.destination); o.start(t); o.stop(t + dur + 0.02);
-  } catch { /* audio unavailable */ }
-}
-/** Original, synthesized cues (marimba-like). */
-export const sfx = {
-  correct: () => { tone(784, 0, 0.18, 'triangle'); tone(1175, 0.09, 0.25, 'triangle'); },
-  wrong: () => { tone(220, 0, 0.22, 'sawtooth', 0.05); tone(185, 0.1, 0.25, 'sawtooth', 0.05); },
-  complete: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.11, 0.35, 'triangle')),
-  tap: () => tone(1400, 0, 0.05, 'sine', 0.04),
-};

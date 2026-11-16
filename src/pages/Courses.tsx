@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { COURSE_META } from '../content';
+import { metaOf } from '../content';
 import type { CourseId } from '../content/types';
 import { useApp } from '../state/store';
 import { CourseGrid } from './Onboarding';
@@ -9,7 +9,7 @@ export default function Courses() {
   const s = useApp();
   const nav = useNavigate();
   const [pick, setPick] = useState<CourseId | null>(s.active);
-  const meta = COURSE_META.find((c) => c.id === pick);
+  const meta = pick ? metaOf(pick) : undefined;
   const go = (base: 'en' | 'sw') => { if (!pick) return; if (s.courses[pick]) s.setActive(pick); else s.startCourse(pick, base); nav('/'); };
   return (
     <>

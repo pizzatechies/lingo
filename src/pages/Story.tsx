@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { feedback } from '../lib/feedback';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAudioAvailable, useCourse } from '../hooks';
 import { useApp, type Summary } from '../state/store';
 import { lexiconFor } from '../lib/lexicon';
-import { sfx, speak } from '../lib/audio';
+import { speak } from '../lib/audio';
 import { HintText } from '../components/HintText';
 import { Bar, Confetti } from '../components/ui';
 import { Mascot } from '../components/Mascot';
@@ -53,15 +54,15 @@ export default function Story() {
             <div className="options" style={{ marginTop: '.6rem' }}>
               {p.options.map((o, j) => (
                 <button key={j} className={`option ${picked[i] === j ? (j === p.answer ? 'ok' : 'bad') : ''}`} disabled={picked[i] === p.answer}
-                  onClick={() => { setPicked({ ...picked, [i]: j }); if (app.settings.sound) (j === p.answer ? sfx.correct : sfx.wrong)(); }}>{o}</button>
+                  onClick={() => { setPicked({ ...picked, [i]: j }); if (j === p.answer) feedback.correct(); else feedback.wrong(); }}>{o}</button>
               ))}
             </div>
           </div>
         ))}
       </div>
       <div className="footer"><div className="inner"><span className="small muted">{firstTry}/{qs} questions answered</span>
-        {done ? <button className="btn success" onClick={() => setSummary(app.completeSession({ kind: 'story', courseId: course.id, storyId: story.id, correct: qs, total: qs, maxCombo: 0, newWords: 0, listens: 0 }))}>Finish</button>
-          : <button className="btn" disabled={blocked} onClick={() => setShown(shown + 1)}>Continue</button>}
+        {done ? <button className="btn success" onClick={() => { feedback.complete(); setSummary(app.completeSession({ kind: 'story', courseId: course.id, storyId: story.id, correct: qs, total: qs, maxCombo: 0, newWords: 0, listens: 0 })); }}>Finish</button>
+          : <button className="btn" disabled={blocked} onClick={() => { feedback.press(); setShown(shown + 1); }}>Continue</button>}
       </div></div>
     </div>
   );

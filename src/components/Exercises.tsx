@@ -3,7 +3,8 @@ import type { Course } from '../content/types';
 import type { Exercise } from '../lib/exercises';
 import type { AnswerValue } from '../lib/grade';
 import type { Lexicon } from '../lib/lexicon';
-import { listenOnce, recognitionSupported, recordingSupported, sfx, speak, startRecording } from '../lib/audio';
+import { listenOnce, recognitionSupported, recordingSupported, speak, startRecording } from '../lib/audio';
+import { feedback } from '../lib/feedback';
 import { HintText } from './HintText';
 import { Mascot } from './Mascot';
 import { shuffle } from '../lib/rng';
@@ -47,7 +48,7 @@ function useNumberKeys(n: number, locked: boolean, pickIdx: (i: number) => void)
     const h = (e: KeyboardEvent) => {
       if (locked || (e.target as HTMLElement)?.tagName === 'INPUT' || (e.target as HTMLElement)?.tagName === 'TEXTAREA') return;
       const i = Number(e.key) - 1;
-      if (i >= 0 && i < n) pickIdx(i);
+      if (i >= 0 && i < n) { feedback.select(); pickIdx(i); }
     };
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
@@ -77,7 +78,7 @@ export function ChoiceEx({ ex, course, lex, value, onChange, locked, audio, noHi
       <div className="options" role="group">
         {ex.options.map((o, i) => (
           <button key={i} type="button" className={`option ${locked && i === ex.correct ? 'ok' : ''} ${locked && value === i && i !== ex.correct ? 'bad' : ''}`} aria-pressed={value === i} disabled={locked}
-            onClick={() => { onChange(i); if (!ex.promptTarget && audio) speak(o, course.ttsLang); }}>
+            onClick={() => { feedback.select(); onChange(i); if (!ex.promptTarget && audio) speak(o, course.ttsLang); }}>
             <span className="num">{i + 1}</span>{o}
           </button>
         ))}
@@ -94,7 +95,7 @@ export function PictureEx({ ex, course, value, onChange, locked, audio }: ExProp
       <div className="pics" role="group">
         {ex.options.map((o, i) => (
           <button key={i} type="button" className={`pic ${locked && i === ex.correct ? 'ok' : ''}`} aria-pressed={value === i} disabled={locked}
-            onClick={() => { onChange(i); if (audio) speak(o.text, course.ttsLang); }}>
+            onClick={() => { feedback.select(); onChange(i); if (audio) speak(o.text, course.ttsLang); }}>
             <span className="em" aria-hidden>{o.emoji}</span>{o.text}
           </button>
         ))}
@@ -111,16 +112,17 @@ export function MatchEx({ ex, course, audio, onDone }: { ex: Extract<Exercise, {
   const mistakes = useRef<Set<string>>(new Set());
   const tap = (side: 'l' | 'r', i: number) => {
     if (side === 'l' && audio) speak(ex.pairs[i].left, course.ttsLang);
-    if (!sel || sel.side === side) { setSel({ side, i }); return; }
+    if (!sel || sel.side === side) { feedback.select(); setSel({ side, i }); return; }
     const l = side === 'l' ? i : sel.i, r = side === 'r' ? i : sel.i;
     setSel(null);
     if (l === r) {
       const next = [...gone, l];
       setGone(next);
-      sfx.tap();
+      feedback.pair(next.length);
       if (next.length === ex.pairs.length) setTimeout(() => onDone([...mistakes.current]), 350);
     } else {
       mistakes.current.add(ex.pairs[l].itemId);
+      feedback.mismatch();
       setBad([l, r]);
       setTimeout(() => setBad([]), 450);
     }
@@ -149,8 +151,8 @@ export function BuildEx({ ex, course, lex, value, onChange, locked, audio, noHin
   useEffect(() => setPicked([]), [ex.key]);
   useEffect(() => { onChange(picked.length ? picked.map((i) => ex.tiles[i]).join(' ') : null); }, [picked]); // eslint-disable-line react-hooks/exhaustive-deps
   void value;
-  const add = (i: number) => { if (locked) return; setPicked((p) => [...p, i]); if (ex.answerTarget && audio) speak(ex.tiles[i], course.ttsLang); };
-  const remove = (i: number) => { if (!locked) setPicked((p) => p.filter((x) => x !== i)); };
+  const add = (i: number) => { if (locked) return; feedback.place(); setPicked((p) => [...p, i]); if (ex.answerTarget && audio) speak(ex.tiles[i], course.ttsLang); };
+  const remove = (i: number) => { if (!locked) { feedback.remove(); } if (!locked) setPicked((p) => p.filter((x) => x !== i)); };
   return (
     <>
       <div className="instr">{ex.listen ? 'Tap what you hear' : 'Translate this sentence'}</div>
@@ -169,6 +171,7 @@ export function TypeEx({ ex, course, lex, value, onChange, locked, audio, noHint
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => { ref.current?.focus(); }, [ex.key]);
   const insert = (ch: string) => {
+    feedback.select();
     const el = ref.current; if (!el) return;
     const v = String(value ?? ''), a = el.selectionStart ?? v.length, b = el.selectionEnd ?? v.length;
     onChange(v.slice(0, a) + ch + v.slice(b));
@@ -199,7 +202,7 @@ export function FillEx({ ex, value, onChange, locked }: ExProps<'fill'>) {
       <p className="muted">“{ex.translation}”</p>
       <div className="options">
         {ex.options.map((o, i) => (
-          <button key={i} type="button" className={`option ${locked && i === ex.correct ? 'ok' : ''}`} aria-pressed={value === i} disabled={locked} onClick={() => onChange(i)}>
+          <button key={i} type="button" className={`option ${locked && i === ex.correct ? 'ok' : ''}`} aria-pressed={value === i} disabled={locked} onClick={() => { feedback.select(); onChange(i); }}>
             <span className="num">{i + 1}</span>{o}
           </button>
         ))}
@@ -220,7 +223,7 @@ export function ChatEx({ ex, course, lex, value, onChange, locked, audio, noHint
       </div>
       <div className="options" style={{ marginLeft: 'auto', width: 'min(100%, 460px)' }}>
         {ex.options.map((o, i) => (
-          <button key={i} type="button" className={`option ${locked && i === ex.correct ? 'ok' : ''}`} aria-pressed={value === i} disabled={locked} onClick={() => onChange(i)}>
+          <button key={i} type="button" className={`option ${locked && i === ex.correct ? 'ok' : ''}`} aria-pressed={value === i} disabled={locked} onClick={() => { feedback.select(); onChange(i); }}>
             <span className="num">{i + 1}</span>{o}
           </button>
         ))}

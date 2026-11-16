@@ -1,4 +1,5 @@
 import { useApp } from '../state/store';
+import { feedback } from '../lib/feedback';
 import { questLabel } from '../lib/quests';
 import { Bar } from '../components/ui';
 import { Mascot } from '../components/Mascot';
@@ -20,7 +21,7 @@ export default function Quests() {
           <div key={q.id} className="card">
             <div className="row between"><b>{questLabel(q)}</b><span className="chip">📿 {q.reward}</span></div>
             <div className="row" style={{ marginTop: '.5rem' }}><Bar value={q.progress / q.target} /><span className="small">{q.progress}/{q.target}</span></div>
-            {q.progress >= q.target && <button className="btn small success" style={{ marginTop: '.6rem' }} disabled={q.claimed} onClick={() => s.claimQuest(q.id)}>{q.claimed ? 'Claimed ✓' : 'Claim reward'}</button>}
+            {q.progress >= q.target && <button className="btn small success" style={{ marginTop: '.6rem' }} disabled={q.claimed} onClick={() => { feedback.reward(); s.claimQuest(q.id); }}>{q.claimed ? 'Claimed ✓' : 'Claim reward'}</button>}
           </div>
         ))}
       </div>

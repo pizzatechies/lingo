@@ -30,6 +30,19 @@ a beaded-necklace learning path) and its own mascot, Twiga the giraffe. The icon
 | **Placement test** | Short adaptive placement test, plus **"Jump here"** on any unit and a checkpoint at the end of each unit. |
 | **Generic content** | Kenyan context everywhere: matatus, M-Pesa, Swahili time (saa moja = 7 a.m.), methali (proverbs) of the day, culture guidebooks, folktale-style stories. |
 
+### All Kenyan languages
+- **45 languages listed** — Bantu, Nilotic and Cushitic languages, plus Sheng, Kenyan Sign Language and Kinubi.
+- **Hand-written courses**: Kiswahili (16 units), Gĩkũyũ, Dholuo, Kalenjin, Maa, Af-Soomaali and Sheng.
+- **Community courses for every other language**: native speakers translate the Kiswahili course in the in-app
+  **course builder** (or a CSV worksheet). A lesson goes live when 4+ of its translations are approved by votes or moderators,
+  and keeps English *and* Kiswahili meanings, emoji and the full exercise engine.
+- To ship translations inside the app (offline, no server), save approved translations as `src/content/community/<lang>.json`
+  (`{ "sw.w.maji": { "t": "…" }, … }`) — they are picked up automatically.
+
+### Feel
+- **Haptic feedback** on iPhone (Taptic Engine) and Android: selection ticks, success/error patterns, a celebration on combos and lesson completion.
+- **Original synthesized sounds** (marimba-style, pentatonic): answer cues that rise in pitch with your combo, pair matches, rewards and a finish fanfare. Both can be switched off in Settings.
+
 ### Learning features
 - **12-unit Kiswahili course**: 46 lessons, ~470 words and phrases, 5 interactive stories, 18 proverbs, pronunciation guide.
 - **Exercise types**: new-word cards, multiple choice, picture choice, match pairs, word-bank translation (both directions), typing, fill-in-the-blank, listening (tap or type what you hear, normal & slow), speaking (speech recognition for Kiswahili, record-and-compare for every language), dialogue roleplay.
