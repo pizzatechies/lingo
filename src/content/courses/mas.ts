@@ -24,6 +24,14 @@ export default defineCourse({
         chat('Sopa!', 'Hello!', 'Epa!', 'Hello! (reply)', ['Ashe oleng.', 'Iko!'], '"Sopa" is answered with "Epa".'),
         chat('Takwenya!', 'Hello! (to a woman)', 'Iko!', 'Hello! (reply)', ['Epa!', 'Sidai.'], '"Takwenya" is answered with "Iko".'),
       ]),
+      lesson('How are the children?', [
+        w('ingera', 'children', '🧒', { sw: 'watoto' }),
+        s('Kasserian ingera?', 'And how are the children?', { sw: 'Na watoto je, hawajambo?', enAlts: ['How are the children?'], note: 'A famous Maasai greeting — the wellbeing of the children shows how the whole community is doing.' }),
+        s('Sapati ingera.', 'All the children are well.', { sw: 'Watoto wote ni wazima.', enAlts: ['The children are well.'] }),
+        s('Ashe oleng.', 'Thank you very much.', { sw: 'Asante sana.' }),
+      ], [
+        chat('Kasserian ingera?', 'And how are the children?', 'Sapati ingera.', 'All the children are well.', ['Epa!', 'Iko!'], 'The traditional reply: all the children are well.'),
+      ]),
     ]),
     unit('Inkanaiyioi', 'Numbers', '🔢', 'Count from one to ten.', [g('Counting cattle', 'Cattle are at the heart of Maasai life, and counting them well has always mattered.')], [
       lesson('One to ten', [

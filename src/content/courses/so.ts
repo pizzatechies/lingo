@@ -1,4 +1,4 @@
-import { chat, defineCourse, g, lesson, s, unit, w } from '../builder';
+import { chat, defineCourse, g, lesson, line, q, s, unit, w } from '../builder';
 
 export default defineCourse({
   meta: {
@@ -157,6 +157,149 @@ export default defineCourse({
         w('digaag', 'chicken', '🐔', { sw: 'kuku' }),
       ]),
     ]),
+    unit('Waqtiga', 'Time & Days', '🕐', 'Days of the week, today and tomorrow, and asking the time.', [
+      g('The week', 'Isniin (Monday), Talaado, Arbaco, Khamiis, Jimce (Friday, the day of congregational prayer), Sabti, Axad (Sunday).'),
+    ], [
+      lesson('Today & tomorrow', [
+        w('maanta', 'today', '📍', { sw: 'leo' }),
+        w('berri', 'tomorrow', '📅', { sw: 'kesho' }),
+        w('shalay', 'yesterday', '⏮️', { sw: 'jana' }),
+        w('hadda', 'now', '⏰', { sw: 'sasa' }),
+        w('saacad', 'hour', '⌚', { sw: 'saa', enAlts: ['clock', 'watch'] }),
+        s('Saacaddu waa immisa?', 'What time is it?', { sw: 'Ni saa ngapi?' }),
+        s('Hadda ayaan imanayaa.', 'I am coming now.', { sw: 'Ninakuja sasa.' }),
+        s('Berri ayaan ku arki doonaa.', 'I will see you tomorrow.', { sw: 'Nitakuona kesho.', enAlts: ['See you tomorrow.'] }),
+      ]),
+      lesson('Days of the week', [
+        w('Isniin', 'Monday', undefined, { sw: 'Jumatatu' }),
+        w('Talaado', 'Tuesday', undefined, { sw: 'Jumanne' }),
+        w('Arbaco', 'Wednesday', undefined, { sw: 'Jumatano' }),
+        w('Khamiis', 'Thursday', undefined, { sw: 'Alhamisi' }),
+        w('Jimce', 'Friday', undefined, { sw: 'Ijumaa' }),
+        w('Sabti', 'Saturday', undefined, { sw: 'Jumamosi' }),
+        w('Axad', 'Sunday', undefined, { sw: 'Jumapili' }),
+        s('Maanta waa Jimce.', 'Today is Friday.', { sw: 'Leo ni Ijumaa.' }),
+        s('Berri waa Sabti.', 'Tomorrow is Saturday.', { sw: 'Kesho ni Jumamosi.' }),
+      ]),
+    ]),
+    unit('Socdaal', 'Getting Around', '🚌', 'Buses, directions and asking the way.', [
+      g('Directions', 'bidix (left), midig (right), toos (straight). "U leexo" means "turn towards": "Bidix u leexo" = turn left.'),
+    ], [
+      lesson('Transport', [
+        w('baabuur', 'car', '🚗', { sw: 'gari', enAlts: ['vehicle'] }),
+        w('bas', 'bus', '🚌', { sw: 'basi' }),
+        w('waddo', 'road', '🛣️', { sw: 'barabara' }),
+        w('diyaarad', 'airplane', '✈️', { sw: 'ndege', enAlts: ['plane'] }),
+        s('Xaggee baad u socotaa?', 'Where are you going?', { sw: 'Unaenda wapi?' }),
+        s('Waxaan u socdaa Garissa.', 'I am going to Garissa.', { sw: 'Ninaenda Garissa.' }),
+        s('Halkan i dhig.', 'Drop me here.', { sw: 'Nishushe hapa.', enAlts: ['Drop me off here.'] }),
+      ]),
+      lesson('Directions', [
+        w('bidix', 'left', '⬅️', { sw: 'kushoto' }),
+        w('midig', 'right', '➡️', { sw: 'kulia' }),
+        w('toos', 'straight', '⬆️', { sw: 'moja kwa moja', enAlts: ['straight ahead'] }),
+        w('dhow', 'near', '📌', { sw: 'karibu', enAlts: ['close'] }),
+        w('fog', 'far', '🔭', { sw: 'mbali' }),
+        w('halkan', 'here', '👇', { sw: 'hapa' }),
+        s('Bidix u leexo.', 'Turn left.', { sw: 'Geuka kushoto.' }),
+        s('Toos u soco.', 'Go straight.', { sw: 'Nenda moja kwa moja.', enAlts: ['Go straight ahead.'] }),
+        s('Ma dhow yahay?', 'Is it near?', { sw: 'Ni karibu?', enAlts: ['Is it close?'] }),
+      ]),
+    ]),
+    unit('Jirka iyo Caafimaadka', 'Body & Health', '🩺', 'Parts of the body and visiting the doctor.', [
+      g('What hurts?', '"Madaxa ayaa i xanuunaya" = my head hurts (the head is hurting me). Swap madaxa for any body part.'),
+    ], [
+      lesson('The body', [
+        w('madax', 'head', '🙆', { sw: 'kichwa' }),
+        w('gacan', 'hand', '✋', { sw: 'mkono', enAlts: ['arm'] }),
+        w('lug', 'leg', '🦵', { sw: 'mguu', enAlts: ['foot'] }),
+        w('il', 'eye', '👁️', { sw: 'jicho' }),
+        w('dheg', 'ear', '👂', { sw: 'sikio' }),
+        w('san', 'nose', '👃', { sw: 'pua' }),
+        w('af', 'mouth', '👄', { sw: 'mdomo', note: '"Af" also means language: Af-Soomaali = the Somali language.' }),
+        w('calool', 'stomach', '🫃', { sw: 'tumbo', enAlts: ['belly'] }),
+        s('Madaxa ayaa i xanuunaya.', 'My head hurts.', { sw: 'Ninaumwa na kichwa.', enAlts: ['I have a headache.'] }),
+      ]),
+      lesson('At the doctor', [
+        w('isbitaal', 'hospital', '🏥', { sw: 'hospitali' }),
+        w('daawo', 'medicine', '💊', { sw: 'dawa' }),
+        w('qandho', 'fever', '🌡️', { sw: 'homa' }),
+        w('xanuun', 'pain', '🤕', { sw: 'maumivu' }),
+        s('Waan xanuunsanahay.', 'I am sick.', { sw: 'Mimi ni mgonjwa.', enAlts: ['I am ill.', 'I feel sick.'] }),
+        s('Qandho ayaan qabaa.', 'I have a fever.', { sw: 'Nina homa.' }),
+        s('Isbitaalku xaggee buu yaal?', 'Where is the hospital?', { sw: 'Hospitali iko wapi?' }),
+      ]),
+    ]),
+    unit('Midabada', 'Colours', '🎨', 'Name the colours around you.', [
+      g('Kenya\'s flag', 'The Kenyan flag is madow (black), cas (red), cagaar (green) and cad (white).'),
+    ], [
+      lesson('Colours', [
+        w('midab', 'colour', '🎨', { sw: 'rangi', enAlts: ['color'] }),
+        w('cas', 'red', '🔴', { sw: 'nyekundu' }),
+        w('cad', 'white', '⚪', { sw: 'nyeupe' }),
+        w('madow', 'black', '⚫', { sw: 'nyeusi' }),
+        w('cagaar', 'green', '🟢', { sw: 'kijani' }),
+        w('buluug', 'blue', '🔵', { sw: 'bluu' }),
+        w('jaale', 'yellow', '🟡', { sw: 'njano' }),
+        s('Midabkee baad jeceshahay?', 'Which colour do you like?', { sw: 'Unapenda rangi gani?', enAlts: ['What colour do you like?'] }),
+        s('Waxaan jeclahay buluug.', 'I like blue.', { sw: 'Ninapenda bluu.' }),
+      ]),
+    ]),
+    unit('Ficillada', 'Everyday Verbs', '⏳', 'Come, sit, read, write — and asking someone to slow down.', [
+      g('Commands', 'The plain verb is a command to one person: kaalay (come), fadhiiso (sit), akhri (read), qor (write).'),
+      g('Please', '"Fadlan" = please. "Fadlan si tartiib ah u hadal" = please speak slowly — useful while you learn!'),
+    ], [
+      lesson('Do it!', [
+        w('kaalay', 'come', '👋', { sw: 'njoo', enAlts: ['come here'] }),
+        w('fadhiiso', 'sit down', '🪑', { sw: 'kaa chini', enAlts: ['sit'] }),
+        w('akhri', 'read', '📖', { sw: 'soma' }),
+        w('qor', 'write', '✍️', { sw: 'andika' }),
+        w('fadlan', 'please', '🥺', { sw: 'tafadhali' }),
+        w('buug', 'book', '📕', { sw: 'kitabu' }),
+        s('Kaalay halkan.', 'Come here.', { sw: 'Njoo hapa.' }),
+        s('Fadlan fadhiiso.', 'Please sit down.', { sw: 'Tafadhali kaa chini.' }),
+      ]),
+      lesson('Learning together', [
+        w('warqad', 'letter', '✉️', { sw: 'barua', enAlts: ['paper'] }),
+        w('tartiib', 'slowly', '🐢', { sw: 'polepole' }),
+        s('Waxaan akhrinayaa buug.', 'I am reading a book.', { sw: 'Ninasoma kitabu.' }),
+        s('Ma fahmin.', "I didn't understand.", { sw: 'Sijaelewa.', enAlts: ["I don't understand.", 'I did not understand.'] }),
+        s('Fadlan si tartiib ah u hadal.', 'Please speak slowly.', { sw: 'Tafadhali ongea polepole.', enAlts: ['Speak slowly, please.'] }),
+      ]),
+    ]),
+    unit('Dhaqanka', 'Culture & Celebrations', '🌙', 'Welcome guests, celebrate and congratulate.', [
+      g('Hospitality', 'Guests are welcomed with "Soo dhawoow!" and offered shaah. Hospitality is a point of honour.'),
+      g('Ciid', 'At the two Eid holidays people greet each other with "Ciid wanaagsan!" or "Ciid Mubaarak!"'),
+    ], [
+      lesson('Celebrations', [
+        w('ciid', 'Eid', '🌙', { sw: 'Idi' }),
+        w('hambalyo', 'congratulations', '👏', { sw: 'hongera' }),
+        w('marti', 'guest', '🤝', { sw: 'mgeni' }),
+        s('Soo dhawoow!', 'Welcome!', { sw: 'Karibu!' }),
+        s('Ciid wanaagsan!', 'Happy Eid!', { sw: 'Idi njema!', alts: ['Ciid Mubaarak!'], enAlts: ['Eid Mubarak!'] }),
+        s('Hambalyo!', 'Congratulations!', { sw: 'Hongera!' }),
+        s('Mahadsanid, walaal.', 'Thank you, brother.', { sw: 'Asante, ndugu.', enAlts: ['Thank you, sister.', 'Thanks, brother.'] }),
+      ], [
+        chat('Soo dhawoow!', 'Welcome!', 'Mahadsanid.', 'Thank you.', ['Nabad gelyo.', 'Maya.'], 'Thank your host when you are welcomed.'),
+      ]),
+    ]),
+  ],
+  stories: [
+    {
+      title: 'Suuqa', titleEn: 'At the Market', icon: '🐪', afterUnit: 5,
+      parts: [
+        line('Cali', 'Iska warran?', 'How are you?'),
+        line('Iibiye', 'Waan fiicanahay, mahadsanid. Maxaad rabtaa?', 'I am fine, thank you. What do you want?'),
+        q('How is the seller?', ['Fine', 'Sick', 'Hungry']),
+        line('Cali', 'Muus ayaan rabaa. Waa immisa?', 'I want bananas. How much is it?'),
+        line('Iibiye', 'Konton shilin.', 'Fifty shillings.'),
+        line('Cali', 'Waa qaali!', 'It is expensive!'),
+        q('What does Ali think of the price?', ['It is expensive', 'It is cheap', 'He does not say']),
+        line('Iibiye', 'Afartan shilin, saaxiib.', 'Forty shillings, friend.'),
+        line('Cali', 'Hagaag. Mahadsanid!', 'OK. Thank you!'),
+        q('How much does Ali pay in the end?', ['Forty shillings', 'Fifty shillings', 'Ten shillings']),
+      ],
+    },
   ],
   proverbs: [
     { t: 'Nin aan dhul marin dhaayo ma leh.', literal: 'A man who has not travelled has no eyes.', meaning: 'Travel opens your mind.' },

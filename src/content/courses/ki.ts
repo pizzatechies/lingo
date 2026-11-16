@@ -114,6 +114,46 @@ export default defineCourse({
         w('mũrũthi', 'lion', '🦁', { sw: 'simba' }),
       ]),
     ]),
+    unit('Mwĩrĩ', 'The Body', '🙆', 'Head, hands, eyes and more.', [
+      g('Help wanted', 'This unit is short on purpose. Native speakers can add more through the course builder (Community → Build courses).'),
+    ], [
+      lesson('The body', [
+        w('mũtwe', 'head', '🙆', { sw: 'kichwa' }),
+        w('guoko', 'hand', '✋', { sw: 'mkono', enAlts: ['arm'] }),
+        w('kũgũrũ', 'leg', '🦵', { sw: 'mguu', enAlts: ['foot'] }),
+        w('riitho', 'eye', '👁️', { sw: 'jicho' }),
+        w('gũtũ', 'ear', '👂', { sw: 'sikio' }),
+        w('iniũrũ', 'nose', '👃', { sw: 'pua' }),
+        w('kanua', 'mouth', '👄', { sw: 'mdomo' }),
+      ]),
+    ]),
+    unit('Mahinda na Mĩario', 'Time & Useful Phrases', '💬', 'Today, tomorrow and phrases you will use every day.', [
+      g('Going somewhere?', '"Ũrathiĩ kũ?" (where are you going?) is a friendly everyday question, often answered "Ndĩrathiĩ mũciĩ" (I am going home).'),
+    ], [
+      lesson('Time words', [
+        w('ũmũthĩ', 'today', '📍', { sw: 'leo' }),
+        w('rũciũ', 'tomorrow', '📅', { sw: 'kesho' }),
+        w('ira', 'yesterday', '⏮️', { sw: 'jana' }),
+        w('rĩu', 'now', '⏰', { sw: 'sasa' }),
+      ]),
+      lesson('Everyday phrases', [
+        s('Ũrathiĩ kũ?', 'Where are you going?', { sw: 'Unaenda wapi?' }),
+        s('Ndĩrathiĩ mũciĩ.', 'I am going home.', { sw: 'Ninaenda nyumbani.' }),
+        s('Ũka gũkũ.', 'Come here.', { sw: 'Njoo hapa.' }),
+        s('Ikara thĩ.', 'Sit down.', { sw: 'Kaa chini.' }),
+        s('Ndiũĩ.', "I don't know.", { sw: 'Sijui.', enAlts: ['I do not know.'] }),
+        s('Nĩ ngwendete.', 'I love you.', { sw: 'Nakupenda.' }),
+      ], [
+        chat('Ũrathiĩ kũ?', 'Where are you going?', 'Ndĩrathiĩ mũciĩ.', 'I am going home.', ['Ikara thĩ.', 'Nĩ wega.'], 'Answer where you are going.'),
+      ]),
+      lesson('More food', [
+        w('mbembe', 'maize', '🌽', { sw: 'mahindi', enAlts: ['corn'] }),
+        w('mboco', 'beans', '🫘', { sw: 'maharagwe' }),
+        w('githeri', 'githeri', '🥘', { sw: 'githeri', enAlts: ['maize and beans'], note: 'A dish of boiled maize and beans.' }),
+        w('mũgate', 'bread', '🍞', { sw: 'mkate' }),
+        w('marigũ', 'bananas', '🍌', { sw: 'ndizi' }),
+      ]),
+    ]),
   ],
   sounds: [
     { sym: 'ĩ', sound: 'Close to "e" in "bed", with lips tighter.', example: 'ĩmwe', exampleEn: 'one' },

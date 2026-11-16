@@ -100,6 +100,42 @@ export default defineCourse({
         w('koth', 'rain', '🌧️', { sw: 'mvua' }),
       ]),
     ]),
+    unit('Del', 'The Body', '🙆', 'Head, hands, eyes and more.', [
+      g('Help wanted', 'This unit is short on purpose. Native speakers can add more through the course builder (Community → Build courses).'),
+    ], [
+      lesson('The body', [
+        w('wich', 'head', '🙆', { sw: 'kichwa' }),
+        w('lwedo', 'hand', '✋', { sw: 'mkono', enAlts: ['arm'] }),
+        w('tielo', 'leg', '🦵', { sw: 'mguu', enAlts: ['foot'] }),
+        w("wang'", 'eye', '👁️', { sw: 'jicho' }),
+        w('it', 'ear', '👂', { sw: 'sikio' }),
+        w('um', 'nose', '👃', { sw: 'pua' }),
+        w('dhok', 'mouth', '👄', { sw: 'mdomo' }),
+      ]),
+    ]),
+    unit('Saa gi Weche', 'Time & Useful Phrases', '💬', 'Today, tomorrow and phrases for every day.', [
+      g('Not knowing is fine', '"Ok ang\'eyo" (I don\'t know) is one of the most useful phrases for a learner.'),
+    ], [
+      lesson('Time & colour words', [
+        w('rachar', 'white', '⚪', { sw: 'nyeupe' }),
+        w("rateng'", 'black', '⚫', { sw: 'nyeusi' }),
+        w('rakwar', 'red', '🔴', { sw: 'nyekundu' }),
+        w('kawuono', 'today', '📍', { sw: 'leo' }),
+        w('kiny', 'tomorrow', '📅', { sw: 'kesho' }),
+        w('nyoro', 'yesterday', '⏮️', { sw: 'jana' }),
+        w('sani', 'now', '⏰', { sw: 'sasa' }),
+      ]),
+      lesson('Everyday phrases', [
+        s('Idhi kure?', 'Where are you going?', { sw: 'Unaenda wapi?' }),
+        s('Bi ka.', 'Come here.', { sw: 'Njoo hapa.' }),
+        s('Bed piny.', 'Sit down.', { sw: 'Kaa chini.' }),
+        s("Ok ang'eyo.", "I don't know.", { sw: 'Sijui.', enAlts: ['I do not know.'] }),
+        s('Aheri.', 'I love you.', { sw: 'Nakupenda.' }),
+        s('Ber ahinya.', 'Very good.', { sw: 'Nzuri sana.' }),
+      ], [
+        chat('Idhi kure?', 'Where are you going?', 'Adhi dala.', 'I am going home.', ['Bed piny.', 'Oyawore!'], 'Answer where you are going.'),
+      ]),
+    ]),
   ],
   sounds: [
     { sym: 'dh', sound: 'Like "th" in "this".', example: 'dhano', exampleEn: 'person' },
