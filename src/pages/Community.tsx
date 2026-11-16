@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { INCUBATOR, metaOf } from '../content';
+import { Link } from 'react-router-dom';
+import { loadCourse, metaOf } from '../content';
+import { communityLanguages } from '../content/languages';
+import { LanguageList } from './Builder';
 import { useCourse } from '../hooks';
-import { api, ApiError, sync, useServer } from '../lib/api';
+import { api, fetchLanguageProgress, sync, useServer, type LangProgress } from '../lib/api';
 import { allItems, gloss } from '../lib/lexicon';
 import { recordingSupported, startRecording } from '../lib/audio';
 import { useApp } from '../state/store';
@@ -11,7 +14,7 @@ import { shuffle } from '../lib/rng';
 
 interface Suggestion { id: number; courseId: string; itemId: string; kind: string; text: string; note: string; score: number; author: string; myVote: number; status: string }
 interface Clip { id: number; itemId: string; text: string; url: string; author: string; score: number; myVote: number }
-interface Incubator { lang: string; speakers: number; learners: number; words: number }
+interface TranslationRow { id: number; sourceId: string; t: string; note: string; score: number; author: string; mine: boolean; myVote: number }
 
 const blobToBase64 = (b: Blob) => new Promise<string>((res) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.readAsDataURL(b); });
 
@@ -103,37 +106,45 @@ function Record({ courseId }: { courseId: string }) {
   );
 }
 
-function IncubatorTab({ online }: { online: boolean }) {
-  const [stats, setStats] = useState<Incubator[]>([]);
-  const [lang, setLang] = useState(INCUBATOR[0].id);
-  const [words, setWords] = useState('');
-  const [msg, setMsg] = useState('');
-  useEffect(() => { if (online) api<Incubator[]>('/incubator').then(setStats).catch(() => {}); }, [online]);
-  const st = (id: string) => stats.find((s) => s.lang === id);
-  const join = async (role: 'speaker' | 'learner') => { try { await api(`/incubator/${lang}`, { body: { role } }); setMsg(role === 'speaker' ? 'Thank you! You are registered as a contributor.' : "We'll count you in — courses launch sooner with more interest."); api<Incubator[]>('/incubator').then(setStats); } catch (e) { setMsg(e instanceof ApiError ? e.message : 'Sign in first.'); } };
-  const submitWords = async () => {
-    const items = words.split('\n').map((l) => l.trim()).filter((l) => l.includes('=')).map((l) => ({ courseId: lang, itemId: 'new', kind: 'new', text: l, note: '' }));
-    if (!items.length) return setMsg('Use one "word = meaning" per line.');
-    try { await api('/community/suggestions/bulk', { body: { items } }); setWords(''); setMsg(`Submitted ${items.length} entries for review. Asante!`); } catch { setMsg('Sign in first.'); }
-  };
+function BuildTab({ online, isMod }: { online: boolean; isMod: boolean }) {
+  const [progress, setProgress] = useState<LangProgress[]>([]);
+  const [lang, setLang] = useState(communityLanguages()[0].id);
+  const [list, setList] = useState<TranslationRow[] | null>(null);
+  const [sw, setSw] = useState<Map<string, { en: string; t: string }>>(new Map());
+  useEffect(() => { if (online) fetchLanguageProgress().then(setProgress).catch(() => {}); }, [online]);
+  useEffect(() => { loadCourse('sw').then((c) => setSw(new Map(allItems(c).map((i) => [i.id, { en: i.en, t: i.t }])))); }, []);
+  const load = useCallback(() => { if (online) api<TranslationRow[]>(`/langs/${lang}/translations?status=pending`).then(setList).catch(() => setList([])); }, [lang, online]);
+  useEffect(load, [load]);
+  const act = (path: string, body: unknown) => api(path, { body }).catch(() => {}).then(load);
   return (
     <div className="stack">
-      <p className="small muted">These languages don't have a course yet. When enough native speakers contribute vocabulary and recordings, a beta course launches.</p>
-      {INCUBATOR.map((l) => (
-        <button key={l.id} className="card tap row" aria-pressed={lang === l.id} onClick={() => setLang(l.id)} style={{ borderColor: lang === l.id ? 'var(--primary)' : undefined }}>
-          <span className="grow"><b>{l.name}</b><div className="small muted">{l.region} · {l.community}</div></span>
-          <span className="small muted">{st(l.id) ? `${st(l.id)!.speakers} speakers · ${st(l.id)!.learners} waiting · ${st(l.id)!.words} entries` : ''}</span>
-        </button>
-      ))}
+      <div className="card"><b>Every Kenyan language deserves a course.</b><p className="small muted" style={{ margin: '.3rem 0 .6rem' }}>Native speakers translate the Kiswahili course word by word. Lessons go live once their translations are approved.</p><Link className="btn small" to="/build">Open the course builder</Link></div>
       {online && (
         <div className="card stack">
-          <b>{INCUBATOR.find((l) => l.id === lang)?.name}</b>
-          <div className="row wrap"><button className="btn small" onClick={() => join('speaker')}>I speak it — I'll help</button><button className="btn small soft" onClick={() => join('learner')}>I want to learn it</button></div>
-          <textarea className="input" rows={4} placeholder={'Submit words, one per line:\nword = meaning'} value={words} onChange={(e) => setWords(e.target.value)} />
-          <button className="btn accent small" onClick={submitWords}>Submit words</button>
-          {msg && <div className="notice info">{msg}</div>}
+          <div className="row between"><b>Review translations</b>
+            <select className="input" style={{ width: 'auto' }} value={lang} onChange={(e) => setLang(e.target.value)} aria-label="Language to review">
+              {communityLanguages().map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+            </select>
+          </div>
+          {!list ? <div className="spinner" /> : list.length === 0 ? <p className="small muted">Nothing waiting for review in this language.</p> : list.map((x) => {
+            const src = sw.get(x.sourceId);
+            return (
+              <div key={x.id} className="list-item" style={{ display: 'block' }}>
+                <div className="small muted">{src ? `${src.en} · Kiswahili: ${src.t}` : x.sourceId} · by {x.author}</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{x.t}</div>
+                {x.note && <div className="small muted">“{x.note}”</div>}
+                {!x.mine && <div className="row" style={{ marginTop: '.4rem' }}>
+                  <button className="btn small soft" aria-pressed={x.myVote === 1} onClick={() => act(`/translations/${x.id}/vote`, { value: 1 })}>👍 Correct</button>
+                  <button className="btn small soft" aria-pressed={x.myVote === -1} onClick={() => act(`/translations/${x.id}/vote`, { value: -1 })}>👎</button>
+                  <span className="small muted grow">score {x.score}</span>
+                  {isMod && <><button className="btn small success" onClick={() => act(`/translations/${x.id}/decision`, { status: 'approved' })}>Approve</button><button className="btn small danger" onClick={() => act(`/translations/${x.id}/decision`, { status: 'rejected' })}>Reject</button></>}
+                </div>}
+              </div>
+            );
+          })}
         </div>
       )}
+      <LanguageList progress={progress} />
     </div>
   );
 }
@@ -154,7 +165,7 @@ export default function Community() {
         {online && user && <button role="tab" aria-selected={tab === 'review'} onClick={() => setTab('review')}>🗳️ Review</button>}
         {online && user && <button role="tab" aria-selected={tab === 'record'} onClick={() => setTab('record')}>🎙️ Record</button>}
         <button role="tab" aria-selected={tab === 'mine'} onClick={() => setTab('mine')}>📝 Mine</button>
-        <button role="tab" aria-selected={tab === 'incubator'} onClick={() => setTab('incubator')}>🌱 New languages</button>
+        <button role="tab" aria-selected={tab === 'incubator'} onClick={() => setTab('incubator')}>🌱 Build courses</button>
       </div>
       {tab === 'review' && user && <Review courseId={course.id} isMod={me?.role === 'moderator'} />}
       {tab === 'record' && user && <Record courseId={course.id} />}
@@ -168,7 +179,7 @@ export default function Community() {
           ))}
         </div>
       )}
-      {tab === 'incubator' && <IncubatorTab online={online && !!user} />}
+      {tab === 'incubator' && <BuildTab online={online && !!user} isMod={me?.role === 'moderator'} />}
     </>
   );
 }

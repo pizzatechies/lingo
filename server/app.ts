@@ -46,6 +46,10 @@ export function migrate(db: DatabaseSync) {
     CREATE TABLE IF NOT EXISTS audio (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, course_id TEXT NOT NULL, item_id TEXT NOT NULL, text TEXT NOT NULL,
       mime TEXT NOT NULL, file TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', score INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS audio_votes (audio_id INTEGER NOT NULL REFERENCES audio(id) ON DELETE CASCADE, user_id INTEGER NOT NULL, value INTEGER NOT NULL, PRIMARY KEY (audio_id, user_id));
+    CREATE TABLE IF NOT EXISTS translations (id INTEGER PRIMARY KEY AUTOINCREMENT, lang TEXT NOT NULL, source_id TEXT NOT NULL, t TEXT NOT NULL, note TEXT NOT NULL DEFAULT '',
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, status TEXT NOT NULL DEFAULT 'pending', score INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, UNIQUE (lang, source_id, user_id));
+    CREATE INDEX IF NOT EXISTS translations_lang ON translations(lang, status);
+    CREATE TABLE IF NOT EXISTS translation_votes (translation_id INTEGER NOT NULL REFERENCES translations(id) ON DELETE CASCADE, user_id INTEGER NOT NULL, value INTEGER NOT NULL, PRIMARY KEY (translation_id, user_id));
     CREATE TABLE IF NOT EXISTS incubator (lang TEXT NOT NULL, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, role TEXT NOT NULL, PRIMARY KEY (lang, user_id));
   `);
 }
@@ -319,6 +323,72 @@ export function createApp(opts: AppOptions) {
     const status = a.status === 'pending' ? (score >= approvalVotes ? 'approved' : score <= -approvalVotes ? 'rejected' : 'pending') : a.status;
     run('UPDATE audio SET score = ?, status = ? WHERE id = ?', score, status, id);
     res.json({ score, status });
+  });
+
+
+  /* ---------- Community courses: native speakers translate the Kiswahili course ---------- */
+  const LANG_RE = /^[a-z]{2,6}$/;
+  api.get('/langs/progress', (_req, res) => {
+    const rows = all<{ lang: string; approved: number; pending: number; contributors: number }>(
+      `SELECT lang, COUNT(DISTINCT CASE WHEN status = 'approved' THEN source_id END) AS approved,
+              COUNT(DISTINCT CASE WHEN status = 'pending' THEN source_id END) AS pending, COUNT(DISTINCT user_id) AS contributors
+       FROM translations GROUP BY lang`);
+    res.set('Cache-Control', 'public, max-age=120').json(rows);
+  });
+  /** Public: the approved translation for each item (highest score, then newest). */
+  api.get('/langs/:lang/course', (req, res) => {
+    const lang = String(req.params.lang);
+    if (!LANG_RE.test(lang)) return res.status(400).json({ error: 'Unknown language.' });
+    const rows = all<{ source_id: string; t: string; note: string }>(
+      "SELECT source_id, t, note FROM translations WHERE lang = ? AND status = 'approved' ORDER BY score ASC, created_at ASC", lang);
+    const translations: Record<string, { t: string; alts?: string[]; note?: string }> = {};
+    for (const r of rows) {
+      const [t, ...alts] = r.t.split('|').map((x) => x.trim()).filter(Boolean);
+      translations[r.source_id] = { t, ...(alts.length ? { alts } : {}), ...(r.note ? { note: r.note } : {}) };
+    }
+    res.set('Cache-Control', 'public, max-age=120').json({ translations });
+  });
+  api.get('/langs/:lang/translations', auth(true), (req: Req, res) => {
+    const rows = all<{ id: number; source_id: string; t: string; note: string; status: string; score: number; author: string; my: number | null; mine: number }>(
+      `SELECT x.id, x.source_id, x.t, x.note, x.status, x.score, u.display_name AS author, x.user_id = ? AS mine,
+              (SELECT value FROM translation_votes v WHERE v.translation_id = x.id AND v.user_id = ?) AS my
+       FROM translations x JOIN users u ON u.id = x.user_id WHERE x.lang = ? AND x.status = ? ORDER BY x.created_at DESC LIMIT 200`,
+      req.user!.id, req.user!.id, String(req.params.lang), str(req.query.status, 12) || 'pending');
+    res.json(rows.map((r) => ({ id: r.id, sourceId: r.source_id, t: r.t, note: r.note, status: r.status, score: r.score, author: r.author, mine: !!r.mine, myVote: r.my ?? 0 })));
+  });
+  api.put('/langs/:lang/translations', auth(true), (req: Req, res) => {
+    const lang = String(req.params.lang);
+    if (!LANG_RE.test(lang)) return res.status(400).json({ error: 'Unknown language.' });
+    const items = Array.isArray(req.body?.items) ? req.body.items.slice(0, 100) : [];
+    let saved = 0;
+    for (const it of items) {
+      const sourceId = str(it?.sourceId, 120), t = str(it?.t, 300), note = str(it?.note, 300);
+      if (!/^sw\.[ws]\.[a-z0-9~-]+$/.test(sourceId) || !t) continue;
+      const prev = q<{ id: number; t: string }>('SELECT id, t FROM translations WHERE lang = ? AND source_id = ? AND user_id = ?', lang, sourceId, req.user!.id);
+      if (prev) {
+        if (prev.t !== t) { run("UPDATE translations SET t = ?, note = ?, status = 'pending', score = 0 WHERE id = ?", t, note, prev.id); run('DELETE FROM translation_votes WHERE translation_id = ?', prev.id); }
+        else run('UPDATE translations SET note = ? WHERE id = ?', note, prev.id);
+      } else run('INSERT INTO translations (lang, source_id, t, note, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?)', lang, sourceId, t, note, req.user!.id, now());
+      saved++;
+    }
+    res.json({ saved });
+  });
+  api.post('/translations/:id/vote', auth(true), (req: Req, res) => {
+    const id = Number(req.params.id), value = Number(req.body?.value) === -1 ? -1 : 1;
+    const x = q<{ user_id: number; status: string }>('SELECT user_id, status FROM translations WHERE id = ?', id);
+    if (!x) return res.status(404).json({ error: 'Not found' });
+    if (x.user_id === req.user!.id) return res.status(400).json({ error: "You can't vote on your own translation." });
+    run('INSERT INTO translation_votes (translation_id, user_id, value) VALUES (?, ?, ?) ON CONFLICT DO UPDATE SET value = excluded.value', id, req.user!.id, value);
+    const score = q<{ s: number }>('SELECT COALESCE(SUM(value), 0) AS s FROM translation_votes WHERE translation_id = ?', id)!.s;
+    const status = x.status === 'pending' ? (score >= approvalVotes ? 'approved' : score <= -approvalVotes ? 'rejected' : 'pending') : x.status;
+    run('UPDATE translations SET score = ?, status = ? WHERE id = ?', score, status, id);
+    res.json({ score, status });
+  });
+  api.post('/translations/:id/decision', auth(true), (req: Req, res) => {
+    if (!isMod(req.user)) return res.status(403).json({ error: 'Moderators only.' });
+    const status = req.body?.status === 'approved' ? 'approved' : 'rejected';
+    run('UPDATE translations SET status = ? WHERE id = ?', status, Number(req.params.id));
+    res.json({ status });
   });
 
   api.get('/incubator', (_req, res) => {

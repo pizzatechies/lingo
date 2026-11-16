@@ -107,3 +107,30 @@ describe('server', () => {
     expect(file.headers.get('content-type')).toContain('audio/webm');
   });
 });
+
+describe('community courses', () => {
+  it('collects, votes on and publishes translations', async () => {
+    const tr = await register('mtafsiri'), v1 = await register('mpigakura1'), v2 = await register('mpigakura2'), mod = await register('mod2');
+    const put = await call('/langs/kam/translations', { method: 'PUT', token: tr, body: { items: [
+      { sourceId: 'sw.w.maji', t: 'kiwũ', note: 'Machakos' }, { sourceId: 'sw.w.asante', t: 'nĩ wega | nĩ mũvea' }, { sourceId: 'not-an-id', t: 'x' },
+    ] } });
+    expect(put.body.saved).toBe(2);
+    expect((await call('/langs/kam/course')).body.translations).toEqual({});
+    const pending = (await call('/langs/kam/translations?status=pending', { token: v1 })).body;
+    expect(pending).toHaveLength(2);
+    const water = pending.find((x: { sourceId: string }) => x.sourceId === 'sw.w.maji');
+    await call(`/translations/${water.id}/vote`, { token: v1, body: { value: 1 } });
+    expect((await call(`/translations/${water.id}/vote`, { token: v2, body: { value: 1 } })).body.status).toBe('approved');
+    const thanks = pending.find((x: { sourceId: string }) => x.sourceId === 'sw.w.asante');
+    expect((await call(`/translations/${thanks.id}/decision`, { token: v1, body: { status: 'approved' } })).status).toBe(403);
+    // 'mod2' is not a moderator either; only configured moderators may decide.
+    expect((await call(`/translations/${thanks.id}/decision`, { token: mod, body: { status: 'approved' } })).status).toBe(403);
+    const course = (await call('/langs/kam/course')).body.translations;
+    expect(course['sw.w.maji']).toEqual({ t: 'kiwũ', note: 'Machakos' });
+    const progress = (await call('/langs/progress')).body.find((p: { lang: string }) => p.lang === 'kam');
+    expect(progress).toMatchObject({ approved: 1, pending: 1, contributors: 1 });
+    // Editing an approved translation sends it back for review.
+    await call('/langs/kam/translations', { method: 'PUT', token: tr, body: { items: [{ sourceId: 'sw.w.maji', t: 'kiwũ (changed)' }] } });
+    expect((await call('/langs/kam/course')).body.translations['sw.w.maji']).toBeUndefined();
+  });
+});

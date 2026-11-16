@@ -1,4 +1,5 @@
-export type CourseId = 'sw' | 'ki' | 'luo' | 'kln' | 'mas' | 'sheng';
+/** Built-in course ids are 'sw' | 'ki' | 'luo' | 'kln' | 'mas' | 'sheng' | 'so'; community courses use their language id. */
+export type CourseId = string;
 export type BaseLang = 'en' | 'sw';
 
 interface ItemBase {
@@ -64,7 +65,7 @@ export interface CourseMeta {
   tagline: string;
   region: string;
   community: string;
-  status: 'stable' | 'beta';
+  status: 'stable' | 'beta' | 'community';
   icon: string;
   color: string;
   /** BCP-47 prefix for text-to-speech voices, when a voice can read this language. */

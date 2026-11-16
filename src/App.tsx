@@ -21,6 +21,7 @@ const Quests = lazy(() => import('./pages/Quests'));
 const Community = lazy(() => import('./pages/Community'));
 const Speed = lazy(() => import('./pages/Speed'));
 const Courses = lazy(() => import('./pages/Courses'));
+const Builder = lazy(() => import('./pages/Builder'));
 
 function useThemeAttrs() {
   const { theme, reduceMotion, bigText } = useApp((s) => s.settings);
@@ -90,6 +91,7 @@ function Shell() {
             <Route path="/quests" element={<Quests />} />
             <Route path="/community" element={<Community />} />
             <Route path="/courses" element={<Courses />} />
+            <Route path="/build/:lang?" element={<Builder />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Suspense>

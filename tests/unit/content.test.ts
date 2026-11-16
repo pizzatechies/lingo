@@ -5,6 +5,10 @@ import luo from '../../src/content/courses/luo';
 import kln from '../../src/content/courses/kln';
 import mas from '../../src/content/courses/mas';
 import sheng from '../../src/content/courses/sheng';
+import so from '../../src/content/courses/so';
+import { buildCommunityCourse, sourceItems, translationProgress } from '../../src/content/community';
+import { LANGUAGES, languageById } from '../../src/content/languages';
+import { readWorksheet, worksheetCsv } from '../../src/lib/worksheet';
 import { COURSE_META } from '../../src/content';
 import { allItems, lexiconFor } from '../../src/lib/lexicon';
 import { lessonSession, masterySession, placementSession, reviewSession, testSession, type Exercise } from '../../src/lib/exercises';
@@ -13,7 +17,10 @@ import { seeded } from '../../src/lib/rng';
 import { review } from '../../src/lib/srs';
 import { normTarget, tokenize } from '../../src/lib/answer';
 
-const courses = [sw, ki, luo, kln, mas, sheng];
+// A community course built from a few pretend translations, so the engine is tested end to end.
+const fakeTr = Object.fromEntries(sourceItems(sw).slice(0, 60).map(({ item }, i) => [item.id, { t: `neno${i} ${item.kind === 'sentence' ? 'sana' : ''}`.trim() }]));
+const community = buildCommunityCourse(languageById('kam')!, sw, fakeTr);
+const courses = [sw, ki, luo, kln, mas, sheng, so, community];
 
 /** Produce the correct answer for any exercise, proving it is solvable. */
 function solve(ex: Exercise) {
@@ -28,6 +35,7 @@ function solve(ex: Exercise) {
 
 describe.each(courses.map((c) => [c.id, c] as const))('course %s', (_id, course) => {
   it('matches the registry metadata', () => {
+    if (course.status === 'community') return;
     const meta = COURSE_META.find((m) => m.id === course.id)!;
     expect(meta).toBeTruthy();
     expect(meta.status).toBe(course.status);
@@ -92,5 +100,28 @@ describe('hints', () => {
   it('has a substantial Kiswahili course', () => {
     expect(sw.units.length).toBeGreaterThanOrEqual(12);
     expect(allItems(sw).length).toBeGreaterThan(400);
+  });
+});
+
+describe('all Kenyan languages', () => {
+  it('lists every language once, with built-in courses linked', () => {
+    expect(new Set(LANGUAGES.map((l) => l.id)).size).toBe(LANGUAGES.length);
+    expect(LANGUAGES.length).toBeGreaterThanOrEqual(40);
+    for (const l of LANGUAGES.filter((x) => x.course)) expect(COURSE_META.some((m) => m.id === l.course)).toBe(true);
+    for (const l of LANGUAGES) expect(l.id).toMatch(/^[a-z]{2,6}$/);
+  });
+  it('builds community courses from translations, skipping thin lessons', () => {
+    expect(community.status).toBe('community');
+    expect(community.units.length).toBeGreaterThan(0);
+    for (const u of community.units) for (const l of u.lessons) expect(l.words.length + l.sentences.length).toBeGreaterThanOrEqual(4);
+    expect(buildCommunityCourse(languageById('guz')!, sw, {}).units).toHaveLength(0);
+    expect(translationProgress(sw, fakeTr).done).toBe(60);
+  });
+  it('round-trips the translator worksheet', () => {
+    const csv = worksheetCsv(sw, { 'sw.w.maji': { t: 'kiwu, "pure"', note: 'Kitui' } });
+    const tr = readWorksheet(csv.replace('jambo,"', 'jambo,"').replace(/(sw\.w\.asante,[^\r]*?),,\r/, '$1,nĩ wega | nĩ mũvea,\r'));
+    expect(tr['sw.w.maji']).toEqual({ t: 'kiwu, "pure"', note: 'Kitui' });
+    expect(Object.keys(tr).length).toBeGreaterThanOrEqual(1);
+    expect(() => readWorksheet('a,b\n1,2')).toThrow();
   });
 });

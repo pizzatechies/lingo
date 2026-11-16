@@ -62,6 +62,20 @@ export default function Learn() {
   const [guide, setGuide] = useState<Unit | null>(null);
   const units = useMemo(() => (course && p ? course.units.map((u) => ({ u, nodes: nodesFor(course, p, u) })) : []), [course, p]);
   if (!course || !p) return <div className="spinner" />;
+  if (course.units.length === 0) {
+    return (
+      <>
+        <TopBar />
+        <div className="hero">
+          <Mascot mood="think" size={130} />
+          <h1>{course.name} is being built</h1>
+          <p className="muted" style={{ maxWidth: 440 }}>Native speakers are translating lessons into {course.name}. Lessons appear here as soon as their translations are approved. Do you speak it? Your help gets everyone learning sooner.</p>
+          <button className="btn" onClick={() => nav(`/build/${course.id}`)}>Help build {course.name}</button>
+          <button className="btn soft" onClick={() => nav('/courses')}>Learn another language meanwhile</button>
+        </div>
+      </>
+    );
+  }
   const current = units.flatMap((x) => x.nodes).find((n) => n.state === 'open' && n.kind === 'lesson')?.id;
   const W = 340, STEP = 96;
 

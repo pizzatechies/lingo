@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { COURSE_META, INCUBATOR } from '../content';
+import { COURSE_META, cachedTranslations } from '../content';
+import { communityLanguages } from '../content/languages';
 import type { BaseLang, CourseId } from '../content/types';
 import { Mascot } from '../components/Mascot';
 import { useApp } from '../state/store';
@@ -26,8 +27,19 @@ export function CourseGrid({ value, onPick }: { value: CourseId | null; onPick: 
         </button>
       ))}
       <details className="card flat">
-        <summary><b>Coming soon: {INCUBATOR.length} more Kenyan languages</b></summary>
-        <p className="muted small" style={{ marginTop: '.6rem' }}>{INCUBATOR.map((l) => l.name).join(' · ')}. Native speakers can help build them in the Community tab.</p>
+        <summary><b>All Kenyan languages ({communityLanguages().length} more) · built by native speakers</b></summary>
+        <p className="muted small" style={{ margin: '.6rem 0' }}>These courses grow as speakers translate lessons. Pick one to learn what's ready so far, or help build it.</p>
+        <div className="list">
+          {communityLanguages().map((l) => {
+            const n = Object.keys(cachedTranslations(l.id)).length;
+            return (
+              <button key={l.id} type="button" className="list-item" aria-pressed={value === l.id} onClick={() => onPick(l.id)} style={{ textAlign: 'left', cursor: 'pointer', borderColor: value === l.id ? 'var(--primary)' : undefined }}>
+                <span className="grow"><b>{l.name}</b><br /><span className="small muted">{l.family} · {l.region}</span></span>
+                <span className={`chip ${n ? 'beta' : ''}`}>{n ? `${n} words ready` : 'Help build'}</span>
+              </button>
+            );
+          })}
+        </div>
       </details>
     </div>
   );

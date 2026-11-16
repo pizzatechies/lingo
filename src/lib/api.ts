@@ -75,3 +75,18 @@ export async function sync() {
   // If another device has newer progress, adopt it.
   if (remote.state && remote.updatedAt > useApp.getState().updatedAt) useApp.getState().replaceState(remote.state as never);
 }
+
+/* Community courses (translations of the Kiswahili course) */
+export interface LangProgress { lang: string; approved: number; pending: number; contributors: number }
+export async function fetchLanguageProgress() { return api<LangProgress[]>('/langs/progress'); }
+export async function refreshLanguage(lang: string) {
+  const { storeTranslations } = await import('../content');
+  const r = await api<{ translations: Record<string, { t: string; alts?: string[]; note?: string }> }>(`/langs/${lang}/course`);
+  storeTranslations(lang, r.translations);
+  return r.translations;
+}
+export async function submitTranslations(lang: string, tr: Record<string, { t: string; note?: string; alts?: string[] }>) {
+  const items = Object.entries(tr).map(([sourceId, v]) => ({ sourceId, t: [v.t, ...(v.alts ?? [])].join(' | '), note: v.note ?? '' }));
+  for (let i = 0; i < items.length; i += 100) await api(`/langs/${lang}/translations`, { method: 'PUT', body: { items: items.slice(i, i + 100) } });
+  return items.length;
+}
