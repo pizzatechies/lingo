@@ -1,6 +1,6 @@
 import type { Course, CourseId, CourseMeta } from './types';
 import { LANGUAGES, languageById } from './languages';
-import { buildCommunityCourse, type Translations } from './community';
+import { buildCommunityCourse, extendWithCommunity, type Translations } from './community';
 
 export const COURSE_META: CourseMeta[] = [
   { id: 'sw', name: 'Kiswahili', nativeName: 'Kiswahili', tagline: "Kenya's national language", region: 'All of Kenya', community: '100M+ speakers', status: 'stable', icon: '🌍', color: '#D9541E', learnFrom: ['en'], ttsLang: 'sw' },
@@ -40,19 +40,26 @@ export function setPreviewDrafts(id: string, tr: Translations | null) {
   cache.delete(id);
 }
 export const isBuiltIn = (id: string) => id in loaders;
+/** The hand-written course without community additions. */
+export const loadBaseCourse = async (id: string) => (await loaders[id]()).default;
+/** Hand-written beta courses accept community additions through the course builder. */
+export const acceptsAdditions = (id: string) => !isBuiltIn(id) || COURSE_META.find((m) => m.id === id)?.status === 'beta';
 
 const cache = new Map<CourseId, Course>();
 export async function loadCourse(id: CourseId): Promise<Course> {
   const hit = cache.get(id);
   if (hit) return hit;
   let course: Course;
-  if (loaders[id]) course = (await loaders[id]()).default;
-  else {
+  const extras = async () => ({ ...(bundled[`./community/${id}.json`] ? await bundled[`./community/${id}.json`]() : {}), ...cachedTranslations(id), ...(previewDrafts[id] ?? {}) });
+  if (loaders[id]) {
+    course = (await loaders[id]()).default;
+    // Beta courses grow with approved community additions.
+    const lang = languageById(id);
+    if (course.status === 'beta' && lang) course = extendWithCommunity(course, lang, await loadCourse('sw'), await extras());
+  } else {
     const lang = languageById(id);
     if (!lang) throw new Error(`Unknown language ${id}`);
-    const fromApp = bundled[`./community/${id}.json`] ? await bundled[`./community/${id}.json`]() : {};
-    const sw = await loadCourse('sw');
-    course = buildCommunityCourse(lang, sw, { ...fromApp, ...cachedTranslations(id), ...(previewDrafts[id] ?? {}) });
+    course = buildCommunityCourse(lang, await loadCourse('sw'), await extras());
   }
   cache.set(id, course);
   return course;

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { cachedTranslations, isBuiltIn, loadCourse, setPreviewDrafts } from '../content';
-import { MIN_LESSON_ITEMS, sourceItems, translationProgress, type Translations } from '../content/community';
+import { acceptsAdditions, cachedTranslations, isBuiltIn, loadBaseCourse, loadCourse, setPreviewDrafts } from '../content';
+import { coveredBy, MIN_LESSON_ITEMS, sourceItems, translationProgress, type Translations } from '../content/community';
 import { LANGUAGES, languageById, type Family } from '../content/languages';
 import type { Course } from '../content/types';
 import { fetchLanguageProgress, refreshLanguage, submitTranslations, useServer, type LangProgress } from '../lib/api';
@@ -39,10 +39,10 @@ export function LanguageList({ progress }: { progress: LangProgress[] }) {
               const p = progress.find((x) => x.lang === l.id);
               const mine = Object.keys(drafts[l.id] ?? {}).length;
               return (
-                <Link key={l.id} to={l.course ? '/courses' : `/build/${l.id}`} className="list-item" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link key={l.id} to={l.course && !acceptsAdditions(l.course) ? '/courses' : `/build/${l.id}`} className="list-item" style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div className="grow"><b>{l.name}</b><div className="small muted">{l.region}{l.community ? ` · ${l.community}` : ''}</div></div>
                   <span className={`chip ${l.course ? 'stable' : p?.approved ? 'beta' : ''}`}>
-                    {l.course ? 'Course available' : p?.approved ? `${p.approved} approved` : mine ? `${mine} in your drafts` : 'Needs translators'}
+                    {l.course ? (acceptsAdditions(l.course) ? 'Course available · add more' : 'Full course') : p?.approved ? `${p.approved} approved` : mine ? `${mine} in your drafts` : 'Needs translators'}
                   </span>
                 </Link>
               );
@@ -69,7 +69,12 @@ export default function Builder() {
   const app = useApp();
   const meta = lang ? languageById(lang) : undefined;
 
+  const [covered, setCovered] = useState<Set<string>>(new Set());
   useEffect(() => { loadCourse('sw').then(setSw); }, []);
+  useEffect(() => {
+    if (!lang || !sw || !isBuiltIn(lang) || !acceptsAdditions(lang)) { setCovered(new Set()); return; }
+    loadBaseCourse(lang).then((c) => setCovered(coveredBy(c, sw)));
+  }, [lang, sw]);
   useEffect(() => { if (online) fetchLanguageProgress().then(setProgress).catch(() => {}); }, [online]);
   useEffect(() => {
     if (!lang) return;
@@ -91,7 +96,8 @@ export default function Builder() {
       </>
     );
   }
-  if (isBuiltIn(lang)) return <div className="empty"><p>{meta.name} already has a course.</p><Link className="btn" to="/courses">Open it</Link></div>;
+  if (!acceptsAdditions(lang)) return <div className="empty"><p>{meta.name} already has a full course.</p><Link className="btn" to="/courses">Open it</Link></div>;
+  const extending = isBuiltIn(lang);
   if (!sw) return <div className="spinner" />;
 
   const unit = sw.units[unitIdx];
@@ -115,7 +121,8 @@ export default function Builder() {
   return (
     <>
       <Link to="/build" className="icon-btn" style={{ marginTop: '.8rem' }}>← All languages</Link>
-      <h1>{meta.name}</h1>
+      <h1>{extending ? `Add to the ${meta.name} course` : meta.name}</h1>
+      {extending && <div className="notice info" style={{ marginBottom: '.8rem' }}>{meta.name} has a starter course. Items marked “in the course” are already taught — translate the others to grow it. Approved additions appear as extra units after the existing lessons.</div>}
       <p className="muted small">{meta.family} · {meta.region}{meta.community ? ` · ${meta.community}` : ''}</p>
       {meta.note && <div className="notice" style={{ marginBottom: '.8rem' }}>{meta.note}</div>}
       <div className="card">
@@ -147,6 +154,14 @@ export default function Builder() {
       <p className="small muted">Write it the way people really speak. Separate alternatives with “|”, and use the note for dialect or usage.</p>
       <div className="list">
         {items.map(({ item, lesson }, i) => {
+          if (covered.has(item.id)) {
+            return (
+              <div key={item.id} className="list-item" style={{ display: 'block', opacity: .6 }}>
+                {(i === 0 || items[i - 1].lesson.id !== lesson.id) && <div className="small muted" style={{ fontWeight: 800, marginBottom: '.3rem' }}>{lesson.title}</div>}
+                <div className="row between"><div><b>{item.en}</b><div className="small muted">Kiswahili: {item.t}</div></div><span className="chip stable">✓ in the course</span></div>
+              </div>
+            );
+          }
           const d = mine[item.id];
           const a = approved[item.id];
           const value = d?.t ?? a?.t ?? '';

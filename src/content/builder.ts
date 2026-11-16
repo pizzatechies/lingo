@@ -34,8 +34,10 @@ export interface CourseIn {
   hints?: Course['hints'];
 }
 
-export function defineCourse(c: CourseIn): Course {
+/** `unitPrefix` keeps ids of appended community units distinct from hand-written ones (u1… vs cu1…). */
+export function defineCourse(c: CourseIn, opts: { unitPrefix?: string } = {}): Course {
   const id = c.meta.id;
+  const up = opts.unitPrefix ?? 'u';
   // Homonyms (e.g. karibu = "welcome" / "near") get distinct ids.
   const glossById = new Map<string, string>();
   const itemId = (kind: 'w' | 's', t: string, en: string) => {
@@ -46,7 +48,7 @@ export function defineCourse(c: CourseIn): Course {
     return base;
   };
   const units: Unit[] = c.units.map((u, ui) => ({
-    id: `${id}.u${ui + 1}`,
+    id: `${id}.${up}${ui + 1}`,
     index: ui,
     title: u.title,
     titleEn: u.titleEn,
@@ -55,7 +57,7 @@ export function defineCourse(c: CourseIn): Course {
     description: u.description,
     guide: u.guide,
     lessons: u.lessons.map((l, li): Lesson => ({
-      id: `${id}.u${ui + 1}.l${li + 1}`,
+      id: `${id}.${up}${ui + 1}.l${li + 1}`,
       title: l.title,
       words: l.items.filter((x): x is WordIn => x.kind === 'word').map((x) => ({ ...x, id: itemId('w', x.t, x.en) })),
       sentences: l.items.filter((x): x is SentenceIn => x.kind === 'sentence').map((x) => ({ ...x, id: itemId('s', x.t, x.en) })),

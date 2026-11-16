@@ -32,7 +32,9 @@ a beaded-necklace learning path) and its own mascot, Twiga the giraffe. The icon
 
 ### All Kenyan languages
 - **45 languages listed** — Bantu, Nilotic and Cushitic languages, plus Sheng, Kenyan Sign Language and Kinubi.
-- **Hand-written courses**: Kiswahili (16 units), Gĩkũyũ, Dholuo, Kalenjin, Maa, Af-Soomaali and Sheng.
+- **Hand-written courses**: Kiswahili (16 units, full), Af-Soomaali (12 units), Sheng (7), Gĩkũyũ (6), Dholuo (6), Maa (3) and Kalenjin (3).
+  All but Kiswahili are **beta**: native speakers can report fixes and **add to them in the course builder** — approved additions
+  appear as extra community units after the hand-written lessons, skipping anything already taught.
 - **Community courses for every other language**: native speakers translate the Kiswahili course in the in-app
   **course builder** (or a CSV worksheet). A lesson goes live when 4+ of its translations are approved by votes or moderators,
   and keeps English *and* Kiswahili meanings, emoji and the full exercise engine.

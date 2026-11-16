@@ -125,3 +125,20 @@ describe('all Kenyan languages', () => {
     expect(() => readWorksheet('a,b\n1,2')).toThrow();
   });
 });
+
+describe('room for improvement', () => {
+  it('appends approved community additions to a beta course without duplicating what it teaches', async () => {
+    const { coveredBy, extendWithCommunity } = await import('../../src/content/community');
+    const covered = coveredBy(ki, sw);
+    expect(covered.has('sw.w.maji')).toBe(true); // Gĩkũyũ already teaches maaĩ = maji
+    const tr = Object.fromEntries(sourceItems(sw).slice(0, 80).map(({ item }, i) => [item.id, { t: `ki${i}` }]));
+    const extended = extendWithCommunity(ki, languageById('ki')!, sw, tr);
+    expect(extended.units.length).toBeGreaterThan(ki.units.length);
+    const extra = extended.units.slice(ki.units.length);
+    expect(extra.every((u, i) => u.id.startsWith('ki.cu') && u.index === ki.units.length + i)).toBe(true);
+    const ids = new Set(extended.units.flatMap((u) => u.lessons.map((l) => l.id)));
+    expect(ids.size).toBe(extended.units.reduce((a, u) => a + u.lessons.length, 0));
+    for (const u of extra) for (const l of u.lessons) for (const it of [...l.words, ...l.sentences]) expect(covered.has(`sw.${it.kind === 'word' ? 'w' : 's'}.x`)).toBe(false);
+    expect(extendWithCommunity(ki, languageById('ki')!, sw, {})).toBe(ki);
+  });
+});

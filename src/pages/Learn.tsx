@@ -83,7 +83,7 @@ export default function Learn() {
   return (
     <>
       <TopBar />
-      {course.status === 'beta' && <div className="notice" style={{ marginBottom: '.8rem' }}>🧪 <b>Beta course.</b> Content is being reviewed by native speakers and may contain mistakes. Tap ⚑ Report in any exercise to suggest a fix — or <Link to="/community">help review</Link>.</div>}
+      {course.status === 'beta' && <div className="notice" style={{ marginBottom: '.8rem' }}>🧪 <b>Beta course.</b> Content is being reviewed by native speakers and may contain mistakes. Tap ⚑ Report in any exercise to suggest a fix, or <Link to={`/build/${course.id}`}>add words and phrases</Link> to grow it.</div>}
       <DailyCard course={course} />
       {units.map(({ u, nodes }) => {
         const unlocked = unitUnlocked(course, p, u.index);
