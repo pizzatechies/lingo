@@ -73,12 +73,22 @@ const assert = require('node:assert');
   await p.click('nav >> text=Practice');
   await p.waitForSelector('text=Smart review');
 
-  step('sign up and open leagues');
-  await p.click('nav >> text=Leagues');
+  step('sign up and open the community');
+  await p.click('nav >> text=Jamii');
   await p.fill('input[placeholder="Username"]', 'e2e_' + Date.now().toString(36).slice(-6));
   await p.fill('input[type="password"]', 'password123');
   await p.click('form button[type=submit]');
-  await p.waitForSelector('text=🏅 League', { timeout: 8000 });
+  await p.waitForSelector('text=🌍 Jamii', { timeout: 8000 });
+
+  step('post progress to the Jamii community feed and react');
+  await p.fill('#feed-text', 'Nimemaliza somo langu la kwanza! 🎉');
+  await p.click('button:has-text("Post to Jamii")');
+  await p.waitForSelector('.post >> text=Nimemaliza somo langu la kwanza!');
+  await p.locator('.post .reaction').first().click();
+  await p.waitForSelector('.post .reaction[aria-pressed="true"]');
+  await shot('e2e-feed');
+
+  await p.click('text=🏅 League');
   await p.waitForSelector('.lb-row', { timeout: 8000 });
   await p.waitForTimeout(800);
   await shot('e2e-league');

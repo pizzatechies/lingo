@@ -17,7 +17,7 @@ export function SidePanel() {
           {s.questDay?.quests.map((q) => <div key={q.id}><div className="small">{questLabel(q)}</div><Bar value={q.progress / q.target} className="thin" /></div>)}
         </div>
       </div>
-      <div className="card"><h3>🏆 Leagues</h3><p className="small muted">Compete weekly — or team up with friends in a Harambee team.</p><Link to="/social" className="btn soft small">Open leagues</Link></div>
+      <div className="card"><h3>🌍 Jamii</h3><p className="small muted">Share your progress, cheer on other learners, join leagues and Harambee teams.</p><Link to="/social" className="btn soft small">Open the community</Link></div>
     </>
   );
 }

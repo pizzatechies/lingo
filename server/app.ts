@@ -14,7 +14,7 @@ const MONDAY_EPOCH = Date.UTC(1970, 0, 5);
 export const weekOf = (t = Date.now()) => Math.floor((t + EAT - MONDAY_EPOCH) / WEEK);
 export const weekEnds = (w: number) => MONDAY_EPOCH + (w + 1) * WEEK - EAT;
 
-export interface AppOptions { corsOrigins?: string[]; db: DatabaseSync; dataDir: string; moderators?: string[]; approvalVotes?: number; clientDir?: string; now?: () => number }
+export interface AppOptions { authRateLimit?: number; corsOrigins?: string[]; db: DatabaseSync; dataDir: string; moderators?: string[]; approvalVotes?: number; clientDir?: string; now?: () => number }
 type User = { id: number; username: string; display_name: string; role: string; league_tier: number; total_xp: number; streak: number };
 type Req = Request & { user?: User };
 
@@ -50,6 +50,11 @@ export function migrate(db: DatabaseSync) {
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, status TEXT NOT NULL DEFAULT 'pending', score INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, UNIQUE (lang, source_id, user_id));
     CREATE INDEX IF NOT EXISTS translations_lang ON translations(lang, status);
     CREATE TABLE IF NOT EXISTS translation_votes (translation_id INTEGER NOT NULL REFERENCES translations(id) ON DELETE CASCADE, user_id INTEGER NOT NULL, value INTEGER NOT NULL, PRIMARY KEY (translation_id, user_id));
+    CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, kind TEXT NOT NULL,
+      body TEXT NOT NULL DEFAULT '', data TEXT NOT NULL DEFAULT '{}', reports INTEGER NOT NULL DEFAULT 0, hidden INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL);
+    CREATE INDEX IF NOT EXISTS posts_recent ON posts(hidden, id);
+    CREATE TABLE IF NOT EXISTS post_reactions (post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE, user_id INTEGER NOT NULL, emoji TEXT NOT NULL, PRIMARY KEY (post_id, user_id, emoji));
+    CREATE TABLE IF NOT EXISTS post_reports (post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE, user_id INTEGER NOT NULL, PRIMARY KEY (post_id, user_id));
     CREATE TABLE IF NOT EXISTS incubator (lang TEXT NOT NULL, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, role TEXT NOT NULL, PRIMARY KEY (lang, user_id));
   `);
 }
@@ -146,9 +151,10 @@ export function createApp(opts: AppOptions) {
 
   /* ---------- Routes ---------- */
   const api = express.Router();
+  const authLimiter = limiter(opts.authRateLimit ?? 20, 10 * 60000);
   api.get('/health', (_req, res) => res.json({ ok: true, name: 'lugha', week: weekOf(now()) }));
 
-  api.post('/auth/register', limiter(20, 10 * 60000), (req, res) => {
+  api.post('/auth/register', authLimiter, (req, res) => {
     const username = str(req.body?.username, 20), password = String(req.body?.password ?? ''), displayName = str(req.body?.displayName, 40) || username;
     if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) return res.status(400).json({ error: 'Username: 3–20 letters, numbers or _.' });
     if (password.length < 8 || password.length > 200) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
@@ -157,7 +163,7 @@ export function createApp(opts: AppOptions) {
     const u = q<User>('SELECT * FROM users WHERE id = ?', Number(r.lastInsertRowid))!;
     res.status(201).json({ token: issue(u.id), user: publicUser(u) });
   });
-  api.post('/auth/login', limiter(20, 10 * 60000), (req, res) => {
+  api.post('/auth/login', authLimiter, (req, res) => {
     const u = q<User & { password_hash: string }>('SELECT * FROM users WHERE username = ?', str(req.body?.username, 20));
     if (!u || !checkPw(String(req.body?.password ?? ''), u.password_hash)) return res.status(401).json({ error: 'Wrong username or password.' });
     res.json({ token: issue(u.id), user: publicUser(u) });
@@ -389,6 +395,78 @@ export function createApp(opts: AppOptions) {
     const status = req.body?.status === 'approved' ? 'approved' : 'rejected';
     run('UPDATE translations SET status = ? WHERE id = ?', status, Number(req.params.id));
     res.json({ status });
+  });
+
+
+  /* ---------- Community feed: share progress, cheer each other on ---------- */
+  const REACTIONS = ['🔥', '👏', '❤️', '🦒'];
+  const POSTS_PER_DAY = 20;
+  const HIDE_AFTER_REPORTS = 3;
+  type PostRow = { id: number; user_id: number; kind: string; body: string; data: string; created_at: number; username: string; display_name: string; streak: number };
+  const shapePosts = (rows: PostRow[], me: number) => {
+    if (!rows.length) return [];
+    const ids = rows.map((r) => r.id);
+    const marks = ids.map(() => '?').join(',');
+    const reacts = all<{ post_id: number; emoji: string; n: number; mine: number }>(
+      `SELECT post_id, emoji, COUNT(*) AS n, MAX(user_id = ?) AS mine FROM post_reactions WHERE post_id IN (${marks}) GROUP BY post_id, emoji`, me, ...ids);
+    return rows.map((r) => ({
+      id: r.id, kind: r.kind, body: r.body, data: JSON.parse(r.data || '{}'), createdAt: r.created_at, mine: r.user_id === me,
+      author: { username: r.username, displayName: r.display_name, streak: r.streak },
+      reactions: REACTIONS.map((e) => { const x = reacts.find((y) => y.post_id === r.id && y.emoji === e); return { emoji: e, count: x?.n ?? 0, mine: !!x?.mine }; }),
+    }));
+  };
+  api.get('/feed', auth(true), (req: Req, res) => {
+    const me = req.user!.id;
+    const before = Number(req.query.before) || Number.MAX_SAFE_INTEGER;
+    const friendsOnly = req.query.scope === 'friends';
+    const rows = all<PostRow>(
+      `SELECT p.id, p.user_id, p.kind, p.body, p.data, p.created_at, u.username, u.display_name, u.streak
+       FROM posts p JOIN users u ON u.id = p.user_id
+       WHERE p.hidden = 0 AND p.id < ? ${friendsOnly ? 'AND (p.user_id = ? OR p.user_id IN (SELECT followee FROM follows WHERE follower = ?))' : ''}
+       ORDER BY p.id DESC LIMIT 30`, ...(friendsOnly ? [before, me, me] : [before]));
+    res.json(shapePosts(rows, me));
+  });
+  api.post('/feed', auth(true), (req: Req, res) => {
+    const me = req.user!.id;
+    const kind = ['progress', 'text', 'milestone'].includes(req.body?.kind) ? req.body.kind : 'text';
+    const body = str(req.body?.body, 280);
+    const raw = req.body?.data && typeof req.body.data === 'object' ? req.body.data : {};
+    // Only known, small progress fields are stored — never free-form objects.
+    const data: Record<string, string | number> = {};
+    for (const k of ['streak', 'xp', 'words', 'lessons', 'accuracy', 'weekXp']) if (Number.isFinite(Number(raw[k]))) data[k] = Math.max(0, Math.min(1e7, Math.floor(Number(raw[k]))));
+    for (const k of ['course', 'courseIcon', 'title', 'icon']) if (typeof raw[k] === 'string') data[k] = str(raw[k], 60);
+    if (!body && kind === 'text') return res.status(400).json({ error: 'Write something to share.' });
+    const today = q<{ n: number }>('SELECT COUNT(*) AS n FROM posts WHERE user_id = ? AND created_at > ?', me, now() - 86400000)!.n;
+    if (today >= POSTS_PER_DAY) return res.status(429).json({ error: 'You have shared a lot today — come back tomorrow!' });
+    const r = run('INSERT INTO posts (user_id, kind, body, data, created_at) VALUES (?, ?, ?, ?, ?)', me, kind, body, JSON.stringify(data), now());
+    const row = q<PostRow>('SELECT p.id, p.user_id, p.kind, p.body, p.data, p.created_at, u.username, u.display_name, u.streak FROM posts p JOIN users u ON u.id = p.user_id WHERE p.id = ?', Number(r.lastInsertRowid))!;
+    res.status(201).json(shapePosts([row], me)[0]);
+  });
+  api.post('/feed/:id/react', auth(true), (req: Req, res) => {
+    const id = Number(req.params.id), emoji = String(req.body?.emoji ?? '');
+    if (!REACTIONS.includes(emoji)) return res.status(400).json({ error: 'Unknown reaction.' });
+    if (!q('SELECT id FROM posts WHERE id = ? AND hidden = 0', id)) return res.status(404).json({ error: 'Not found' });
+    const had = q('SELECT 1 FROM post_reactions WHERE post_id = ? AND user_id = ? AND emoji = ?', id, req.user!.id, emoji);
+    if (had) run('DELETE FROM post_reactions WHERE post_id = ? AND user_id = ? AND emoji = ?', id, req.user!.id, emoji);
+    else run('INSERT INTO post_reactions (post_id, user_id, emoji) VALUES (?, ?, ?)', id, req.user!.id, emoji);
+    res.json({ reacted: !had });
+  });
+  api.post('/feed/:id/report', auth(true), (req: Req, res) => {
+    const id = Number(req.params.id);
+    const p = q<{ user_id: number }>('SELECT user_id FROM posts WHERE id = ?', id);
+    if (!p) return res.status(404).json({ error: 'Not found' });
+    run('INSERT OR IGNORE INTO post_reports (post_id, user_id) VALUES (?, ?)', id, req.user!.id);
+    const n = q<{ n: number }>('SELECT COUNT(*) AS n FROM post_reports WHERE post_id = ?', id)!.n;
+    run('UPDATE posts SET reports = ?, hidden = CASE WHEN ? >= ? THEN 1 ELSE hidden END WHERE id = ?', n, n, HIDE_AFTER_REPORTS, id);
+    res.json({ reported: true });
+  });
+  api.delete('/feed/:id', auth(true), (req: Req, res) => {
+    const id = Number(req.params.id);
+    const p = q<{ user_id: number }>('SELECT user_id FROM posts WHERE id = ?', id);
+    if (!p) return res.status(404).json({ error: 'Not found' });
+    if (p.user_id !== req.user!.id && !isMod(req.user)) return res.status(403).json({ error: 'You can only delete your own posts.' });
+    run('DELETE FROM posts WHERE id = ?', id);
+    res.json({ deleted: true });
   });
 
   api.get('/incubator', (_req, res) => {

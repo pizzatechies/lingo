@@ -37,7 +37,7 @@ const NAV = [
   { to: '/', ico: '🏠', label: 'Learn' },
   { to: '/practice', ico: '🧠', label: 'Practice' },
   { to: '/explore', ico: '📚', label: 'Explore' },
-  { to: '/social', ico: '🏆', label: 'Leagues' },
+  { to: '/social', ico: '🌍', label: 'Jamii' },
   { to: '/profile', ico: '🦒', label: 'Me' },
 ];
 

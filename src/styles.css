@@ -256,3 +256,60 @@ body::before { content: ''; position: fixed; inset: 0 0 auto; height: var(--sat)
 /* Pizza Technologies logo (gold on charcoal) */
 .pt-logo { border-radius: 22%; flex: none; box-shadow: 0 2px 8px rgb(0 0 0 / .18); }
 .splash-credit { display: flex; align-items: center; gap: .5rem; }
+
+/* ---------- Bottom bars: floating rounded tab bar + rounded lesson panel ---------- */
+@media (max-width: 899px) {
+  .nav {
+    left: max(12px, var(--sal)); right: max(12px, var(--sar)); bottom: calc(8px + var(--sab));
+    border: 1px solid var(--border); border-radius: 26px; padding: .45rem .35rem;
+    background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    box-shadow: 0 10px 30px rgb(60 30 10 / .14), 0 2px 6px rgb(60 30 10 / .06);
+  }
+  .nav a { flex: 1; min-height: 52px; justify-content: center; border-radius: 20px; font-size: .72rem; gap: .15rem; }
+  .nav a .ico { font-size: 1.5rem; }
+  .main { padding-bottom: calc(110px + var(--sab)); }
+  /* Keep the strip under the floating bar from showing page content */
+  body::after { content: ''; position: fixed; inset: auto 0 0; height: calc(8px + var(--sab)); background: linear-gradient(to top, var(--bg), transparent); pointer-events: none; z-index: 19; }
+}
+.footer {
+  border-top: 0; border-radius: 24px 24px 0 0; box-shadow: 0 -8px 28px rgb(60 30 10 / .08);
+  margin-left: calc(-1 * max(16px, var(--sal))); margin-right: calc(-1 * max(16px, var(--sar)));
+  padding: 1rem max(16px, var(--sar)) calc(1rem + var(--sab)) max(16px, var(--sal));
+}
+.footer.ok, .footer.bad { box-shadow: 0 -8px 28px rgb(60 30 10 / .12); }
+.footer .btn { min-height: 54px; border-radius: 18px; }
+@media (max-width: 639px) {
+  .footer .inner { flex-direction: row; flex-wrap: wrap; align-items: center; gap: .6rem; }
+  .footer .inner > div { flex: 1 1 100%; }
+  .footer .inner > span:empty { display: none; }
+  .footer .inner > .btn:last-child { flex: 1; }
+  .footer .inner > .btn.ghost { flex: 0 0 auto; padding-inline: 1.2rem; }
+}
+
+/* ---------- Jamii community feed ---------- */
+.progress-card { border-radius: 18px; padding: .9rem 1rem; color: #fff; background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 60%, #5a1d05)); position: relative; overflow: hidden; }
+.progress-card::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: repeating-linear-gradient(90deg, rgb(255 255 255 / .55) 0 8px, rgb(0 0 0 / .2) 8px 12px, var(--gold) 12px 16px, transparent 16px 28px); }
+.pc-head { font-size: .95rem; margin-bottom: .5rem; }
+.pc-stats { display: flex; gap: 1rem; flex-wrap: wrap; }
+.pc-stats span { display: flex; flex-direction: column; }
+.pc-stats b { font-size: 1.15rem; }
+.pc-stats small { opacity: .85; font-size: .72rem; }
+.post { display: grid; gap: .6rem; }
+.post-body { margin: 0; font-size: 1.02rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.reactions { display: flex; gap: .4rem; flex-wrap: wrap; }
+.reaction { border: 1px solid var(--border); background: var(--surface-2); border-radius: 999px; padding: .3rem .7rem; font-size: 1rem; cursor: pointer; display: inline-flex; gap: .3rem; align-items: center; min-height: 36px; }
+.reaction span { font-size: .8rem; font-weight: 800; color: var(--muted); }
+.reaction[aria-pressed='true'] { border-color: var(--primary); background: var(--primary-soft); }
+.menu { position: absolute; right: 0; top: 100%; z-index: 5; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); padding: .3rem; min-width: 150px; }
+.menu button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: .55rem .7rem; border-radius: 10px; cursor: pointer; }
+.menu button:hover { background: var(--surface-2); }
+
+/* Never let wide content (tab strips, long names) widen the page; it scrolls inside its own box instead. */
+@media (max-width: 899px) { .shell { grid-template-columns: minmax(0, 1fr); } }
+@media (min-width: 900px) { .shell { grid-template-columns: 230px minmax(0, 1fr) 320px; } }
+.main { min-width: 0; }
+.tabs { max-width: 100%; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs button { flex: 1 0 auto; }
+.footer .fb { flex: 1 1 100%; min-width: 0; }
+@media (min-width: 640px) { .footer .fb { flex: 1; } }

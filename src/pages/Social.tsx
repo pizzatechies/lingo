@@ -5,6 +5,7 @@ import { useApp } from '../state/store';
 import { AccountForm } from './Account';
 import { Avatar, Bar } from '../components/ui';
 import { Mascot } from '../components/Mascot';
+import Feed from './Feed';
 
 interface Standing { username: string; displayName: string; xp: number; me: boolean; streak: number }
 interface League { tier: number; tierName: string; tiers: string[]; endsAt: number; standings: Standing[]; promote: number; demote: number; lastResult: string | null }
@@ -103,26 +104,28 @@ function TeamTab() {
 export default function Social() {
   const { status, user } = useServer();
   const show = useApp((s) => s.settings.showLeagues);
-  const [tab, setTab] = useState<'league' | 'friends' | 'team'>('league');
+  const [tab, setTab] = useState<'feed' | 'league' | 'friends' | 'team'>('feed');
   if (status === 'unknown') return <div className="spinner" />;
   if (status === 'offline') return (
     <div className="hero"><Mascot mood="think" size={130} /><h1>You're learning offline</h1><p className="muted">Leagues, friends and Harambee teams need the Lugha Zetu server. Everything else — lessons, practice, stories, streaks — works without a connection.</p></div>
   );
   if (!user) return (
     <>
-      <div className="hero"><Mascot mood="wave" size={110} /><h1>Join the community</h1><p className="muted">Create a free account to sync across devices, join weekly leagues, follow friends and learn in Harambee teams.</p></div>
+      <div className="hero"><Mascot mood="wave" size={110} /><h1>Join the community</h1><p className="muted">Create a free account to share your progress in Jamii, the Lugha Zetu community, join weekly leagues, follow friends and learn in Harambee teams.</p></div>
       <div className="card"><AccountForm /></div>
     </>
   );
   return (
     <>
-      <div className="row between" style={{ marginTop: '1rem' }}><h1 style={{ margin: 0 }}>Leagues</h1><span className="small muted">@{user.username} · <button className="hintword" onClick={() => useApp.getState().setAuth(null)}>Sign out</button></span></div>
+      <div className="row between wrap" style={{ marginTop: '1rem' }}><h1 style={{ margin: 0 }}>Community</h1><span className="small muted">@{user.username} · <button className="hintword" onClick={() => useApp.getState().setAuth(null)}>Sign out</button></span></div>
       {!show && <div className="notice info" style={{ margin: '.8rem 0' }}>Leagues are hidden in <Link to="/settings">Settings</Link>. Friends and teams are still here.</div>}
       <div className="tabs" role="tablist" style={{ marginTop: '1rem' }}>
+        <button role="tab" aria-selected={tab === 'feed'} onClick={() => setTab('feed')}>🌍 Jamii</button>
         {show && <button role="tab" aria-selected={tab === 'league'} onClick={() => setTab('league')}>🏅 League</button>}
         <button role="tab" aria-selected={tab === 'friends'} onClick={() => setTab('friends')}>👥 Friends</button>
         <button role="tab" aria-selected={tab === 'team'} onClick={() => setTab('team')}>🤝 Harambee</button>
       </div>
+      {tab === 'feed' && <Feed />}
       {tab === 'league' && show && <LeagueTab />}
       {(tab === 'friends' || (tab === 'league' && !show)) && <FriendsTab />}
       {tab === 'team' && <TeamTab />}

@@ -19,7 +19,7 @@ const register = async (username: string) => (await call('/auth/register', { bod
 
 beforeAll(async () => {
   dir = mkdtempSync(join(tmpdir(), 'lugha-'));
-  const app = createApp({ db: new DatabaseSync(':memory:'), dataDir: dir, moderators: ['mod'], approvalVotes: 2, now: () => clock });
+  const app = createApp({ db: new DatabaseSync(':memory:'), dataDir: dir, moderators: ['mod'], approvalVotes: 2, authRateLimit: 1000, now: () => clock });
   await new Promise<void>((r) => { server = app.listen(0, () => r()); });
   base = `http://localhost:${(server.address() as { port: number }).port}`;
 });
@@ -132,5 +132,36 @@ describe('community courses', () => {
     // Editing an approved translation sends it back for review.
     await call('/langs/kam/translations', { method: 'PUT', token: tr, body: { items: [{ sourceId: 'sw.w.maji', t: 'kiwũ (changed)' }] } });
     expect((await call('/langs/kam/course')).body.translations['sw.w.maji']).toBeUndefined();
+  });
+});
+
+describe('community feed', () => {
+  it('shares progress, reacts, filters by friends and moderates', async () => {
+    const a = await register('feedA'), b = await register('feedB'), c = await register('feedC');
+    const m = (await call('/auth/login', { body: { username: 'mod', password: 'password123' } })).body.token as string; // moderator from an earlier test
+    expect((await call('/feed', { token: a, body: { kind: 'text', body: '' } })).status).toBe(400);
+    const p1 = await call('/feed', { token: a, body: { kind: 'progress', body: 'Nimemaliza somo la kwanza!', data: { streak: 3, xp: 40, course: 'Kiswahili', evil: { x: 1 } } } });
+    expect(p1.status).toBe(201);
+    expect(p1.body.data).toEqual({ streak: 3, xp: 40, course: 'Kiswahili' });
+    await call('/feed', { token: c, body: { kind: 'text', body: 'Habari wote' } });
+    const feed = (await call('/feed', { token: b })).body;
+    expect(feed.map((x: { body: string }) => x.body)).toEqual(expect.arrayContaining(['Nimemaliza somo la kwanza!', 'Habari wote']));
+    // Reactions toggle
+    expect((await call(`/feed/${p1.body.id}/react`, { token: b, body: { emoji: '🔥' } })).body.reacted).toBe(true);
+    expect((await call(`/feed/${p1.body.id}/react`, { token: b, body: { emoji: '💩' } })).status).toBe(400);
+    const fire = (await call('/feed', { token: b })).body.find((x: { id: number }) => x.id === p1.body.id).reactions.find((r: { emoji: string }) => r.emoji === '🔥');
+    expect(fire).toEqual({ emoji: '🔥', count: 1, mine: true });
+    // Friends filter: b follows a only
+    await call('/friends', { token: b, body: { username: 'feedA' } });
+    const friends = (await call('/feed?scope=friends', { token: b })).body;
+    expect(friends.every((x: { author: { username: string } }) => x.author.username === 'feedA')).toBe(true);
+    // Only owners or moderators delete
+    expect((await call(`/feed/${p1.body.id}`, { method: 'DELETE', token: b })).status).toBe(403);
+    const cPost = (await call('/feed', { token: b })).body.find((x: { body: string }) => x.body === 'Habari wote');
+    expect((await call(`/feed/${cPost.id}`, { method: 'DELETE', token: m })).status).toBe(200);
+    // Three reports hide a post
+    const p2 = (await call('/feed', { token: a, body: { kind: 'text', body: 'spam' } })).body;
+    for (const t of [b, c, m]) await call(`/feed/${p2.id}/report`, { token: t, body: {} });
+    expect((await call('/feed', { token: b })).body.some((x: { id: number }) => x.id === p2.id)).toBe(false);
   });
 });

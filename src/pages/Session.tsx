@@ -11,7 +11,8 @@ import { BuildEx, ChatEx, ChoiceEx, FillEx, IntroEx, MatchEx, PictureEx, SpeakEx
 import { Bar, Confetti, Modal } from '../components/ui';
 import { Mascot } from '../components/Mascot';
 import { questLabel } from '../lib/quests';
-import { communityAnswers } from '../lib/api';
+import { communityAnswers, useServer } from '../lib/api';
+import { progressData, progressText, postProgress, shareOutside } from '../lib/share';
 
 interface Built { exercises: Exercise[]; kind: SessionKind; title: string; unitIndex?: number; lessonId?: string; unitOf?: number[]; maxMistakes?: number; passMark?: number; noHints?: boolean }
 
@@ -218,7 +219,7 @@ function Feedback({ ex, result, lex, explain, setExplain, onReport }: { ex: Grad
     : 'answerTarget' in ex && ex.answerTarget ? result.expected : ex.type === 'picture' ? ex.options[ex.correct].text : 'promptTarget' in ex && ex.promptTarget ? ex.prompt : result.expected;
   const parts = lex.breakdown(targetText).filter((p) => p.hint);
   return (
-    <div style={{ flex: 1 }}>
+    <div className="fb">
       <div className="fb-title">{result.correct ? (result.near === 'typo' ? 'Almost — watch the spelling' : result.near === 'accent' ? 'Correct — mind the accents' : praise) : 'Correct answer:'}</div>
       {(!result.correct || result.near) && <div style={{ fontWeight: 700 }}>{result.expected}</div>}
       {ex.type === 'chat' && <div className="small">{ex.why}</div>}
@@ -284,8 +285,28 @@ function Complete({ summary, built, stats, onDone, course }: { summary: Summary;
         {summary.goalJustMet && <div className="card flat" style={{ width: '100%' }}>🎯 Daily goal reached! +5 beads</div>}
         {summary.quests.map((q) => <div key={q.id} className="card flat" style={{ width: '100%' }}>✅ Quest done: {questLabel(q)} — claim it in Quests</div>)}
         {summary.achievements.map((a) => <div key={a.id} className="card flat" style={{ width: '100%' }}>{a.icon} Achievement: <b>{a.name}</b> — {a.desc} (+{a.reward} beads)</div>)}
+        <ShareRow title={built.kind === 'lesson' ? `Finished “${built.title}”` : built.title} accuracy={acc} />
         <button className="btn block" onClick={onDone} autoFocus>Continue</button>
       </div>
+    </div>
+  );
+}
+
+/** Post the result to the Jamii community feed, or send it to WhatsApp & co. */
+function ShareRow({ title, accuracy }: { title: string; accuracy: number }) {
+  const { online, user } = useServer();
+  const [state, setState] = useState<'' | 'posted' | 'copied' | 'error'>('');
+  const data = progressData({ title, icon: '🎉', accuracy });
+  return (
+    <div className="row wrap" style={{ width: '100%', justifyContent: 'center' }}>
+      {online && user && (
+        <button className="btn soft small" disabled={state === 'posted'} onClick={async () => {
+          try { await postProgress(`${title} 🎉`, data); feedback.reward(); setState('posted'); } catch { setState('error'); }
+        }}>{state === 'posted' ? '✓ Posted to Jamii' : '📣 Post to Jamii'}</button>
+      )}
+      <button className="btn soft small" onClick={async () => { const r = await shareOutside(progressText(data, `${title} on Lugha Zetu! 🎉`)); if (r === 'copied') setState('copied'); }}>📤 Share</button>
+      {state === 'copied' && <span className="small muted">Copied — paste it anywhere.</span>}
+      {state === 'error' && <span className="small muted">Could not post right now.</span>}
     </div>
   );
 }

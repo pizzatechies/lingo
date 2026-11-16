@@ -39,6 +39,11 @@ a beaded-necklace learning path) and its own mascot, Twiga the giraffe. The icon
 - To ship translations inside the app (offline, no server), save approved translations as `src/content/community/<lang>.json`
   (`{ "sw.w.maji": { "t": "…" }, … }`) — they are picked up automatically.
 
+### Jamii — the online community
+- A **progress feed**: post updates with an attached progress card (streak, XP, words), react with 🔥 👏 ❤️ 🦒, filter to friends.
+- **Share outside** the app (WhatsApp, SMS, anywhere) from the feed or the lesson-complete screen.
+- Safety: 280-character posts, 20 posts a day per learner, report & hide (3 reports hide a post), moderators can remove posts.
+
 ### Feel
 - **Haptic feedback** on iPhone (Taptic Engine) and Android: selection ticks, success/error patterns, a celebration on combos and lesson completion.
 - **Original synthesized sounds** (marimba-style, pentatonic): answer cues that rise in pitch with your combo, pair matches, rewards and a finish fanfare. Both can be switched off in Settings.
