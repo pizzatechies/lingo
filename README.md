@@ -94,6 +94,11 @@ locally; leagues, friends, teams, sync and community review appear when the API 
 
 Docker: `docker build -t lugha . && docker run -p 8787:8787 -v lugha-data:/data lugha`
 
+**Railway:** `railway.json` is included (Dockerfile build, health check on `/api/health`). Create a service from this repo,
+add a volume mounted at `/data`, set `MODERATORS`, and generate a domain. Then build the mobile apps against it with
+`VITE_API_BASE=https://<your-domain> npm run android:apk` (and set the same variable for the iOS workflow) so the apps
+can reach accounts, Jamii, leagues and community review.
+
 ## Android app (APK)
 
 The `android/` folder is a [Capacitor](https://capacitorjs.com) project that packages the same web app as a native
